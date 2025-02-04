@@ -38,7 +38,10 @@ class RegisterController extends AbstractController
         $user->setEmail($data['email']);
         $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
         $user->setPassword($hashedPassword);
-        $user->setRoles(['ROLE_USER']); // Default role
+
+        // Allow assigning ROLE_ADMIN, but only if explicitly provided
+        $roles = $data['roles'] ?? ['ROLE_USER'];
+        $user->setRoles($roles);
 
         // Validate the User entity
         $errors = $validator->validate($user);
