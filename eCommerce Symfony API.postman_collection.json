@@ -553,7 +553,7 @@
 			"response": []
 		},
 		{
-			"name": "/api/orders/my-orders/status/{status}",
+			"name": "/orders/my-orders/status/{status}",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -601,6 +601,51 @@
 							"key": "page",
 							"value": "1"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/orders/my-orders/{id}/cancel",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ecommerce_symfony_api_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/orders/my-orders/1/cancel",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"orders",
+						"my-orders",
+						"1",
+						"cancel"
 					]
 				}
 			},

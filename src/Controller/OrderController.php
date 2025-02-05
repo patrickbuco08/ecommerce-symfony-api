@@ -220,4 +220,31 @@ class OrderController extends AbstractController
             'orders' => $data
         ]);
     }
+
+    #[Route('/my-orders/{id}/cancel', name: 'cancel_order', methods: ['PUT'])]
+    #[IsGranted('ROLE_USER')]
+    public function cancelOrder(
+        Order $order,
+        #[CurrentUser] User $user,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        // Ensure the order belongs to the authenticated user
+        if ($order->getUser() !== $user) {
+            return new JsonResponse(['error' => 'You can only cancel your own orders'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        // Ensure the order is still pending
+        if ($order->getStatus() !== OrderStatus::PENDING) {
+            return new JsonResponse(['error' => 'Only pending orders can be canceled'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        // Update order status to canceled
+        $order->setStatus(OrderStatus::CANCELLED);
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'message' => 'Order canceled successfully',
+            'new_status' => $order->getStatus()->value
+        ]);
+    }
 }
