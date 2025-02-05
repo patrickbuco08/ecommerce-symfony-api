@@ -150,4 +150,36 @@ class OrderController extends AbstractController
 
         return new JsonResponse($data);
     }
+
+    #[Route('/my-orders/status/{status}', name: 'get_user_orders_by_status', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function getUserOrdersByStatus(
+        string $status,
+        #[CurrentUser] User $user,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        // Validate if the provided status exists in OrderStatus enum
+        if (!OrderStatus::tryFrom($status)) {
+            return new JsonResponse(['error' => 'Invalid order status'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $orders = $entityManager->getRepository(Order::class)->findBy([
+            'user' => $user,
+            'status' => $status
+        ]);
+
+        $data = array_map(fn($order) => [
+            'id' => $order->getId(),
+            'status' => $order->getStatus()->value,
+            'total' => $order->getTotal(),
+            'createdAt' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
+            'items' => array_map(fn($item) => [
+                'product' => $item->getProduct()->getName(),
+                'quantity' => $item->getQuantity(),
+                'price' => $item->getPrice(),
+            ], $order->getItems()->toArray())
+        ], $orders);
+
+        return new JsonResponse($data);
+    }
 }
