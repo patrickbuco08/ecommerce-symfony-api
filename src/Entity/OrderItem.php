@@ -29,32 +29,51 @@ class OrderItem
     #[ORM\Column]
     private float $price;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getProduct(): ?Product { return $this->product; }
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
 
-    public function setProduct(Product $product): self { 
+    public function setProduct(Product $product): self
+    {
         $this->product = $product;
         return $this;
     }
 
-    public function getOrder(): ?Order { return $this->order; }
+    public function getOrder(): ?Order
+    {
+        return $this->order;
+    }
 
-    public function setOrder(?Order $order): self { 
+    public function setOrder(?Order $order): self
+    {
         $this->order = $order;
         return $this;
     }
 
-    public function getQuantity(): int { return $this->quantity; }
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
 
-    public function setQuantity(int $quantity): self { 
+    public function setQuantity(int $quantity): self
+    {
         $this->quantity = $quantity;
         return $this;
     }
 
-    public function getPrice(): float { return $this->price; }
+    public function getPrice(): float
+    {
+        return $this->price;
+    }
 
-    public function setPrice(float $price): self { 
+    public function setPrice(float $price): self
+    {
         $this->price = $price;
         return $this;
     }
