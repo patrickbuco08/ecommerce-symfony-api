@@ -50,7 +50,37 @@ class AdminController extends AbstractController
         EntityManagerInterface $entityManager
     ): Response {
         $format = $request->query->get('format', 'json'); // Default to JSON
-        $orders = $entityManager->getRepository(Order::class)->findAll();
+        $startDate = $request->query->get('start_date');
+        $endDate = $request->query->get('end_date');
+        $userEmail = $request->query->get('user_email');
+        $productName = $request->query->get('product_name');
+
+        $queryBuilder = $entityManager->getRepository(Order::class)->createQueryBuilder('o')
+            ->leftJoin('o.items', 'oi')
+            ->leftJoin('oi.product', 'p')
+            ->leftJoin('o.user', 'u');
+
+        if ($startDate) {
+            $queryBuilder->andWhere('o.createdAt >= :startDate')
+                ->setParameter('startDate', new \DateTimeImmutable($startDate));
+        }
+
+        if ($endDate) {
+            $queryBuilder->andWhere('o.createdAt <= :endDate')
+                ->setParameter('endDate', new \DateTimeImmutable($endDate));
+        }
+
+        if ($userEmail) {
+            $queryBuilder->andWhere('u.email = :userEmail')
+                ->setParameter('userEmail', $userEmail);
+        }
+
+        if ($productName) {
+            $queryBuilder->andWhere('p.name LIKE :productName')
+                ->setParameter('productName', '%' . $productName . '%');
+        }
+
+        $orders = $queryBuilder->getQuery()->getResult();
 
         $data = array_map(fn($order) => [
             'id' => $order->getId(),
@@ -65,11 +95,7 @@ class AdminController extends AbstractController
             ], $order->getItems()->toArray())
         ], $orders);
 
-        if ($format === 'csv') {
-            return $this->exportCSV($data);
-        }
-
-        return new JsonResponse($data);
+        return ($format === 'csv') ? $this->exportCSV($data) : new JsonResponse($data);
     }
 
     private function exportCSV(array $data): Response
