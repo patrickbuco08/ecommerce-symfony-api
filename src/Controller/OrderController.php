@@ -7,6 +7,7 @@ use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\OrderItem;
 use App\Enum\OrderStatus;
+use App\Service\PdfGenerator;
 use Pagerfanta\Pagerfanta;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
@@ -16,7 +17,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 #[Route('/api/orders')]
 class OrderController extends AbstractController
@@ -246,5 +248,29 @@ class OrderController extends AbstractController
             'message' => 'Order canceled successfully',
             'new_status' => $order->getStatus()->value
         ]);
+    }
+
+    #[Route('/{id}/invoice', name: 'get_order_invoice', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function getOrderInvoice(
+        Order $order,
+        #[CurrentUser] User $user,
+        PdfGenerator $pdfGenerator
+    ): Response {
+        // Ensure the user owns the order or is an admin
+        if ($order->getUser() !== $user && !in_array('ROLE_ADMIN', $user->getRoles())) {
+            return new JsonResponse(['error' => 'You can only access your own invoices'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        $pdfContent = $pdfGenerator->generateInvoice($order);
+
+        $response = new StreamedResponse(function () use ($pdfContent) {
+            echo $pdfContent;
+        });
+
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', 'attachment; filename="invoice-' . $order->getId() . '.pdf"');
+
+        return $response;
     }
 }
