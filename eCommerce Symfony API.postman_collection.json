@@ -200,6 +200,51 @@
 			"response": []
 		},
 		{
+			"name": "/orders",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ecommerce_symfony_api_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/orders",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "/profile",
 			"request": {
 				"auth": {
@@ -411,7 +456,7 @@
 			"response": []
 		},
 		{
-			"name": "/orders",
+			"name": "/orders/status/{status}",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -438,7 +483,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/orders",
+					"raw": "http://127.0.0.1:8000/api/orders/status/pending?page=1",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -449,7 +494,15 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"orders"
+						"orders",
+						"status",
+						"pending"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						}
 					]
 				}
 			},
@@ -494,6 +547,60 @@
 						"orders",
 						"1",
 						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/orders/my-orders/status/{status}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ecommerce_symfony_api_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/orders/my-orders/status/pending?page=1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"orders",
+						"my-orders",
+						"status",
+						"pending"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						}
 					]
 				}
 			},

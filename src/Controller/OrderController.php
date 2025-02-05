@@ -2,18 +2,21 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Entity\Order;
-use App\Entity\OrderItem;
 use App\Entity\Product;
+use App\Entity\OrderItem;
 use App\Enum\OrderStatus;
+use Pagerfanta\Pagerfanta;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use App\Entity\User;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[Route('/api/orders')]
 class OrderController extends AbstractController
@@ -126,15 +129,30 @@ class OrderController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function getOrdersByStatus(
         string $status,
+        Request $request,
         EntityManagerInterface $entityManager
     ): JsonResponse {
-        // Validate if the provided status exists in OrderStatus enum
+        // Validate the status
         if (!OrderStatus::tryFrom($status)) {
             return new JsonResponse(['error' => 'Invalid order status'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $orders = $entityManager->getRepository(Order::class)->findBy(['status' => $status]);
+        $queryBuilder = $entityManager->getRepository(Order::class)
+            ->createQueryBuilder('o')
+            ->where('o.status = :status')
+            ->setParameter('status', $status)
+            ->orderBy('o.createdAt', 'DESC');
 
+        // Create a pagination adapter
+        $adapter = new QueryAdapter($queryBuilder);
+        $pagerfanta = new Pagerfanta($adapter);
+
+        // Get the requested page, default to page 1
+        $page = max(1, (int) $request->query->get('page', 1));
+        $pagerfanta->setMaxPerPage(10); // Set items per page
+        $pagerfanta->setCurrentPage($page);
+
+        // Convert paginated results to JSON
         $data = array_map(fn($order) => [
             'id' => $order->getId(),
             'user' => $order->getUser()->getEmail(),
@@ -146,9 +164,14 @@ class OrderController extends AbstractController
                 'quantity' => $item->getQuantity(),
                 'price' => $item->getPrice(),
             ], $order->getItems()->toArray())
-        ], $orders);
+        ], iterator_to_array($pagerfanta->getCurrentPageResults()));
 
-        return new JsonResponse($data);
+        return new JsonResponse([
+            'page' => $page,
+            'total_pages' => $pagerfanta->getNbPages(),
+            'total_orders' => $pagerfanta->getNbResults(),
+            'orders' => $data
+        ]);
     }
 
     #[Route('/my-orders/status/{status}', name: 'get_user_orders_by_status', methods: ['GET'])]
@@ -156,17 +179,27 @@ class OrderController extends AbstractController
     public function getUserOrdersByStatus(
         string $status,
         #[CurrentUser] User $user,
+        Request $request,
         EntityManagerInterface $entityManager
     ): JsonResponse {
-        // Validate if the provided status exists in OrderStatus enum
         if (!OrderStatus::tryFrom($status)) {
             return new JsonResponse(['error' => 'Invalid order status'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $orders = $entityManager->getRepository(Order::class)->findBy([
-            'user' => $user,
-            'status' => $status
-        ]);
+        $queryBuilder = $entityManager->getRepository(Order::class)
+            ->createQueryBuilder('o')
+            ->where('o.user = :user')
+            ->andWhere('o.status = :status')
+            ->setParameter('user', $user)
+            ->setParameter('status', $status)
+            ->orderBy('o.createdAt', 'DESC');
+
+        $adapter = new QueryAdapter($queryBuilder);
+        $pagerfanta = new Pagerfanta($adapter);
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $pagerfanta->setMaxPerPage(10);
+        $pagerfanta->setCurrentPage($page);
 
         $data = array_map(fn($order) => [
             'id' => $order->getId(),
@@ -178,8 +211,13 @@ class OrderController extends AbstractController
                 'quantity' => $item->getQuantity(),
                 'price' => $item->getPrice(),
             ], $order->getItems()->toArray())
-        ], $orders);
+        ], iterator_to_array($pagerfanta->getCurrentPageResults()));
 
-        return new JsonResponse($data);
+        return new JsonResponse([
+            'page' => $page,
+            'total_pages' => $pagerfanta->getNbPages(),
+            'total_orders' => $pagerfanta->getNbResults(),
+            'orders' => $data
+        ]);
     }
 }
