@@ -19,6 +19,8 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 #[Route('/api/orders')]
 class OrderController extends AbstractController
@@ -272,5 +274,59 @@ class OrderController extends AbstractController
         $response->headers->set('Content-Disposition', 'attachment; filename="invoice-' . $order->getId() . '.pdf"');
 
         return $response;
+    }
+
+
+    #[Route('/{id}/generate-invoice', name: 'generate_order_invoice', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function generateInvoice(
+        Order $order,
+        PdfGenerator $pdfGenerator,
+        EntityManagerInterface $entityManager,
+        ParameterBagInterface $params
+    ): JsonResponse {
+        // Ensure invoice isn't already generated
+        if ($order->getInvoicePath()) {
+            return new JsonResponse(['error' => 'Invoice already exists'], JsonResponse::HTTP_CONFLICT);
+        }
+
+        $invoiceDir = $params->get('kernel.project_dir') . '/public/invoices';
+        if (!is_dir($invoiceDir)) {
+            mkdir($invoiceDir, 0777, true);
+        }
+
+        // Generate and save invoice
+        $invoicePath = $pdfGenerator->generateAndSaveInvoice($order, $invoiceDir);
+        $order->setInvoicePath('/invoices/' . basename($invoicePath));
+
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'message' => 'Invoice generated successfully',
+            'invoice_path' => $order->getInvoicePath()
+        ]);
+    }
+
+    #[Route('/{id}/download-invoice', name: 'download_order_invoice', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function downloadInvoice(
+        Order $order,
+        #[CurrentUser] User $user
+    ): Response {
+        if ($order->getUser() !== $user && !in_array('ROLE_ADMIN', $user->getRoles())) {
+            return new JsonResponse(['error' => 'You can only download your own invoices'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        if (!$order->getInvoicePath()) {
+            return new JsonResponse(['error' => 'Invoice not generated'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $filePath = $this->getParameter('kernel.project_dir') . '/public' . $order->getInvoicePath();
+
+        if (!file_exists($filePath)) {
+            return new JsonResponse(['error' => 'Invoice file not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        return new BinaryFileResponse($filePath);
     }
 }

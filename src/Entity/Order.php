@@ -36,6 +36,9 @@ class Order
     #[ORM\Column]
     private ?float $total = null;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $invoicePath = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -107,6 +110,18 @@ class Order
     public function setUser(User $user): self
     {
         $this->user = $user;
+        return $this;
+    }
+
+    public function getInvoicePath(): ?string
+    {
+        return $this->invoicePath;
+    }
+
+    public function setInvoicePath(?string $invoicePath): self
+    {
+        $this->invoicePath = $invoicePath;
+
         return $this;
     }
 }
