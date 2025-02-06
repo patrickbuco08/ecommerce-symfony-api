@@ -95,7 +95,9 @@ class OrderController extends AbstractController
     public function updateOrderStatus(
         Order $order,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        PdfGenerator $pdfGenerator,
+        ParameterBagInterface $params
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -110,22 +112,31 @@ class OrderController extends AbstractController
 
         $newStatus = OrderStatus::from($data['status']);
 
-        // Enforce status transition rules
-        if ($order->getStatus() === OrderStatus::COMPLETED) {
-            return new JsonResponse(['error' => 'Completed orders cannot be changed'], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        if ($order->getStatus() === OrderStatus::CANCELLED) {
-            return new JsonResponse(['error' => 'Canceled orders cannot be changed'], JsonResponse::HTTP_BAD_REQUEST);
+        // Prevent changes to completed/canceled orders
+        if (in_array($order->getStatus(), [OrderStatus::COMPLETED, OrderStatus::CANCELLED])) {
+            return new JsonResponse(['error' => 'Completed or canceled orders cannot be changed'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
         // Update the order status
         $order->setStatus($newStatus);
+
+        // If order is marked as completed, generate an invoice
+        if ($newStatus === OrderStatus::COMPLETED && !$order->getInvoicePath()) {
+            $invoiceDir = $params->get('kernel.project_dir') . '/public/invoices';
+            if (!is_dir($invoiceDir)) {
+                mkdir($invoiceDir, 0777, true);
+            }
+
+            $invoicePath = $pdfGenerator->generateAndSaveInvoice($order, $invoiceDir);
+            $order->setInvoicePath('/invoices/' . basename($invoicePath));
+        }
+
         $entityManager->flush();
 
         return new JsonResponse([
             'message' => 'Order status updated successfully',
-            'new_status' => $order->getStatus()->value
+            'new_status' => $order->getStatus()->value,
+            'invoice_path' => $order->getInvoicePath()
         ]);
     }
 
