@@ -20,5 +20,8 @@ php bin/console doctrine:migrations:migrate
 ### Unable to create a signed JWT from the given configuration
 docker exec -it symfony_app php bin/console lexik:jwt:generate-keypair --overwrite
 
+### manually check the logs
+docker exec -it symfony_app tail -f var/log/dev.log
+
 ### questions
 1. what is #[ORM\HasLifecycleCallbacks]?

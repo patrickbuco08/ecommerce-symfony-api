@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Your Order Invoice</title>
+	</head>
+	<body>
+		<p>Hello
+			{{ order.getUser().getEmail() }},</p>
+		<p>Your order
+			<strong>#{{ order.getId() }}</strong>
+			has been marked as
+			<strong>{{ order.getStatus().value }}</strong>.</p>
+		<p>Attached is your invoice.</p>
+		<p>Thank you for shopping with us!</p>
+	</body>
+</html>

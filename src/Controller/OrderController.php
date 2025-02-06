@@ -7,6 +7,7 @@ use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\OrderItem;
 use App\Enum\OrderStatus;
+use App\Service\EmailService;
 use App\Service\PdfGenerator;
 use Pagerfanta\Pagerfanta;
 use Doctrine\ORM\EntityManagerInterface;
@@ -97,7 +98,8 @@ class OrderController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         PdfGenerator $pdfGenerator,
-        ParameterBagInterface $params
+        ParameterBagInterface $params,
+        EmailService $emailService
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -129,6 +131,9 @@ class OrderController extends AbstractController
 
             $invoicePath = $pdfGenerator->generateAndSaveInvoice($order, $invoiceDir);
             $order->setInvoicePath('/invoices/' . basename($invoicePath));
+
+            // Send invoice email
+            $emailService->sendInvoiceEmail($order);
         }
 
         $entityManager->flush();
