@@ -23,5 +23,11 @@ docker exec -it symfony_app php bin/console lexik:jwt:generate-keypair --overwri
 ### manually check the logs
 docker exec -it symfony_app tail -f var/log/dev.log
 
+### trigger command
+php bin/console app:test-mailer
+
+### check pending messages
+php bin/console messenger:consume async -vv
+flush -> php bin/console messenger:reset
 ### questions
 1. what is #[ORM\HasLifecycleCallbacks]?

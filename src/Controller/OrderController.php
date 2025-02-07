@@ -7,21 +7,21 @@ use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\OrderItem;
 use App\Enum\OrderStatus;
-use App\Service\EmailService;
-use App\Service\PdfGenerator;
 use Pagerfanta\Pagerfanta;
+use App\Service\PdfGenerator;
+use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 #[Route('/api/orders')]
 class OrderController extends AbstractController
@@ -99,7 +99,7 @@ class OrderController extends AbstractController
         EntityManagerInterface $entityManager,
         PdfGenerator $pdfGenerator,
         ParameterBagInterface $params,
-        EmailService $emailService
+        MailerService $mailerService
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -133,7 +133,7 @@ class OrderController extends AbstractController
             $order->setInvoicePath('/invoices/' . basename($invoicePath));
 
             // Send invoice email
-            $emailService->sendInvoiceEmail($order);
+            $mailerService->sendInvoiceEmail($order);
         }
 
         $entityManager->flush();
