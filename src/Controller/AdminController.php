@@ -88,10 +88,10 @@ class AdminController extends AbstractController
         }
 
         return new JsonResponse([
-            'total_orders' => $totalOrders,
-            'total_revenue' => (float) $totalRevenue,
-            'orders_by_status' => $statusData,
-            'monthly_orders' => $monthlyOrders
+            'totalOrders' => $totalOrders,
+            'totalRevenue' => (float) $totalRevenue,
+            'orderByStatus' => $statusData,
+            'monthlyOrders' => $monthlyOrders
         ]);
     }
 
