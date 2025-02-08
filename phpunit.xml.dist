@@ -19,6 +19,10 @@
         <!-- ###+ symfony/sendgrid-mailer ### -->
         <!-- MAILER_DSN=sendgrid://KEY@default -->
         <!-- ###- symfony/sendgrid-mailer ### -->
+
+        <!-- ###+ nelmio/cors-bundle ### -->
+        <env name="CORS_ALLOW_ORIGIN" value="'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'"/>
+        <!-- ###- nelmio/cors-bundle ### -->
     </php>
 
     <testsuites>
