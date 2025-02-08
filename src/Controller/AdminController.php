@@ -4,12 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Order;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AdminController extends AbstractController
 {
@@ -40,6 +40,58 @@ class AdminController extends AbstractController
             'total_orders' => $totalOrders,
             'total_revenue' => (float) $totalRevenue,
             'orders_by_status' => $statusData
+        ]);
+    }
+
+    #[Route('/api/admin/dashboard/stats', name: 'admin_dashboard_stats', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function getDashboardStats(EntityManagerInterface $entityManager): JsonResponse
+    {
+        $orderRepo = $entityManager->getRepository(Order::class);
+
+        $totalOrders = $orderRepo->count([]);
+        $totalRevenue = $orderRepo->createQueryBuilder('o')
+            ->select('SUM(o.total)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $statusCounts = $orderRepo->createQueryBuilder('o')
+            ->select('o.status, COUNT(o.id) as count')
+            ->groupBy('o.status')
+            ->getQuery()
+            ->getResult();
+
+        $statusData = [];
+        foreach ($statusCounts as $status) {
+            $statusData[$status['status']->value] = (int) $status['count'];
+        }
+
+        // Orders per month for the last 12 months
+        $orders = $entityManager->createQuery(
+            "SELECT o.createdAt, COUNT(o.id) as count
+             FROM App\Entity\Order o
+             WHERE o.createdAt >= :lastYear
+             GROUP BY o.createdAt
+             ORDER BY o.createdAt ASC"
+        )->setParameter('lastYear', (new \DateTime('-12 months'))->format('Y-m-d'))
+            ->getResult();
+
+        $monthlyOrders = [];
+
+        foreach ($orders as $order) {
+            $month = $order['createdAt']->format('m');
+
+            $monthlyOrders[] = [
+                'month' => (int) $month,
+                'count' => (int) $order['count'],
+            ];
+        }
+
+        return new JsonResponse([
+            'total_orders' => $totalOrders,
+            'total_revenue' => (float) $totalRevenue,
+            'orders_by_status' => $statusData,
+            'monthly_orders' => $monthlyOrders
         ]);
     }
 

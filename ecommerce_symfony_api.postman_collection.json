@@ -205,6 +205,47 @@
 			"response": []
 		},
 		{
+			"name": "/admin/dashboard/stats",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ecommerce_symfony_api_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/admin/dashboard/stats",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"admin",
+						"dashboard",
+						"stats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "/products",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -766,7 +807,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"status\": \"pending\"\n}",
+					"raw": "{\n  \"status\": \"completed\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
