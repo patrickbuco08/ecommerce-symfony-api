@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Service\ProductService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,39 +15,22 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route('/api/products')]
 class ProductController extends AbstractController
 {
+    private ProductService $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
     #[Route('', name: 'create_product', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function createProduct(
         Request $request,
-        EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
+        $result = $this->productService->createProduct($data);
 
-        if (!isset($data['name'], $data['price'], $data['stock'])) {
-            return new JsonResponse(['error' => 'Missing required fields'], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $product = new Product();
-        $product->setName($data['name']);
-        $product->setDescription($data['description'] ?? null);
-        $product->setPrice((float) $data['price']);
-        $product->setStock((int) $data['stock']);
-
-        // Validate the product
-        $errors = $validator->validate($product);
-        if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage();
-            }
-            return new JsonResponse(['errors' => $errorMessages], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $entityManager->persist($product);
-        $entityManager->flush();
-
-        return new JsonResponse(['message' => 'Product created successfully'], JsonResponse::HTTP_CREATED);
+        return new JsonResponse($result, isset($result['error']) ? JsonResponse::HTTP_BAD_REQUEST : JsonResponse::HTTP_CREATED);
     }
 
     #[Route('', name: 'get_products', methods: ['GET'])]
