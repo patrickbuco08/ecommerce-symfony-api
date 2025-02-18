@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller;
+namespace Bocum\Controller;
 
-use App\Entity\User;
+use Bocum\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

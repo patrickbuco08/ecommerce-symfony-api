@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller;
+namespace Bocum\Controller;
 
-use App\Entity\Order;
+use Bocum\Entity\Order;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

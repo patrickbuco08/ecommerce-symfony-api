@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controller;
+namespace Bocum\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use App\Entity\User;
+use Bocum\Entity\User;
 
 class ProfileController extends AbstractController
 {

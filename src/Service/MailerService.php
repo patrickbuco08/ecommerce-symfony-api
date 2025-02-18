@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service;
+namespace Bocum\Service;
 
-use App\Entity\Order;
+use Bocum\Entity\Order;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;

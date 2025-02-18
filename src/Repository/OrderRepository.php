@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace Bocum\Repository;
 
-use App\Entity\Order;
+use Bocum\Entity\Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

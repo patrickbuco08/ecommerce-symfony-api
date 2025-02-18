@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Controller;
+namespace Bocum\Controller;
 
-use App\Entity\User;
-use App\Entity\Order;
-use App\Entity\Product;
-use App\Entity\OrderItem;
-use App\Enum\OrderStatus;
+use Bocum\Entity\User;
+use Bocum\Entity\Order;
+use Bocum\Entity\Product;
+use Bocum\Entity\OrderItem;
+use Bocum\Enum\OrderStatus;
 use Pagerfanta\Pagerfanta;
-use App\Service\PdfGenerator;
-use App\Service\MailerService;
+use Bocum\Service\PdfGenerator;
+use Bocum\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Symfony\Component\HttpFoundation\Request;

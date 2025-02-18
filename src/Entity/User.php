@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity;
+namespace Bocum\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\UserRepository;
+use Bocum\Repository\UserRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;

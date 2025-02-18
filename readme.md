@@ -31,3 +31,6 @@ php bin/console messenger:consume async -vv
 flush -> php bin/console messenger:reset
 ### questions
 1. what is #[ORM\HasLifecycleCallbacks]?
+
+### check if doctrine detects your entities
+- php bin/console doctrine:mapping:info

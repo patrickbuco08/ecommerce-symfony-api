@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service;
+namespace Bocum\Service;
 
-use App\Entity\Product;
+use Bocum\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

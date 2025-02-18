@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Entity;
+namespace Bocum\Entity;
 
-use App\Entity\User;
-use App\Enum\OrderStatus;
+use Bocum\Entity\User;
+use Bocum\Enum\OrderStatus;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\OrderRepository;
+use Bocum\Repository\OrderRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;

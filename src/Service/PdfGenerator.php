@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Service;
+namespace Bocum\Service;
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use App\Entity\Order;
+use Bocum\Entity\Order;
 use Twig\Environment;
 
 class PdfGenerator

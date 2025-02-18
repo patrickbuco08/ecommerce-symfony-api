@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace Bocum\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use App\Entity\User;
+use Bocum\Entity\User;
 
 class AuthController extends AbstractController
 {

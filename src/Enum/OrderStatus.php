@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enum;
+namespace Bocum\Enum;
 
 enum OrderStatus: string
 {
