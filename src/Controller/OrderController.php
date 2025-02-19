@@ -10,6 +10,7 @@ use Bocum\Enum\OrderStatus;
 use Pagerfanta\Pagerfanta;
 use Bocum\Service\PdfGenerator;
 use Bocum\Service\MailerService;
+use Bocum\Service\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,73 +23,33 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[Route('/api/orders')]
 class OrderController extends AbstractController
 {
+    private OrderService $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+
     #[Route('', name: 'create_order', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
-    public function createOrder(
-        Request $request,
-        EntityManagerInterface $entityManager,
-        #[CurrentUser] User $user
-    ): JsonResponse {
+    public function createOrder(Request $request, #[CurrentUser] UserInterface $user): JsonResponse
+    {
         $data = json_decode($request->getContent(), true);
+        $result = $this->orderService->createOrder($user, $data);
 
-        if (!isset($data['items']) || !is_array($data['items'])) {
-            return new JsonResponse(['error' => 'Invalid order data'], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $order = new Order();
-        $order->setUser($user);
-        $total = 0;
-
-        foreach ($data['items'] as $itemData) {
-            $product = $entityManager->getRepository(Product::class)->find($itemData['product_id']);
-
-            if (!$product) {
-                return new JsonResponse(['error' => 'Product not found'], JsonResponse::HTTP_NOT_FOUND);
-            }
-
-            $orderItem = new OrderItem();
-            $orderItem->setProduct($product);
-            $orderItem->setQuantity($itemData['quantity']);
-            $orderItem->setPrice($product->getPrice() * $itemData['quantity']);
-            $total += $orderItem->getPrice();
-
-            $order->addItem($orderItem);
-        }
-
-        $order->setTotal($total);
-        $entityManager->persist($order);
-        $entityManager->flush();
-
-        return new JsonResponse(['message' => 'Order placed successfully'], JsonResponse::HTTP_CREATED);
+        return new JsonResponse($result, isset($result['error']) ? JsonResponse::HTTP_BAD_REQUEST : JsonResponse::HTTP_CREATED);
     }
 
     #[Route('', name: 'get_orders', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function getUserOrders(
-        #[CurrentUser] User $user
-    ): JsonResponse {
-        $orders = $user->getOrders();
-        $data = [];
-
-        foreach ($orders as $order) {
-            $data[] = [
-                'id' => $order->getId(),
-                'status' => $order->getStatus()->value,
-                'total' => $order->getTotal(),
-                'createdAt' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
-                'items' => array_map(fn($item) => [
-                    'product' => $item->getProduct()->getName(),
-                    'quantity' => $item->getQuantity(),
-                    'price' => $item->getPrice(),
-                ], $order->getItems()->toArray())
-            ];
-        }
-
-        return new JsonResponse($data);
+    public function getUserOrders(#[CurrentUser] UserInterface $user): JsonResponse
+    {
+        return new JsonResponse($this->orderService->getUserOrders($user));
     }
 
     #[Route('/{id}/status', name: 'update_order_status', methods: ['PUT'])]
