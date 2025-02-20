@@ -44,8 +44,14 @@ class ProductService
     public function getAllProducts(): array
     {
         $products = $this->entityManager->getRepository(Product::class)->findAll();
+
         return array_map(fn($product) => [
             'id' => $product->getId(),
+            'category' => [
+                'id' => $product->getCategory()->getId(),
+                'name' => $product->getCategory()->getName(),
+                'slug' => $product->getCategory()->getSlug(),
+            ],
             'name' => $product->getName(),
             'description' => $product->getDescription(),
             'price' => $product->getPrice(),

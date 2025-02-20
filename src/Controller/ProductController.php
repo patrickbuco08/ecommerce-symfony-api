@@ -34,23 +34,9 @@ class ProductController extends AbstractController
     }
 
     #[Route('', name: 'get_products', methods: ['GET'])]
-    public function getProducts(EntityManagerInterface $entityManager): JsonResponse
+    public function getProducts(): JsonResponse
     {
-        $products = $entityManager->getRepository(Product::class)->findAll();
-        $data = [];
-
-        foreach ($products as $product) {
-            $data[] = [
-                'id' => $product->getId(),
-                'name' => $product->getName(),
-                'description' => $product->getDescription(),
-                'price' => $product->getPrice(),
-                'stock' => $product->getStock(),
-                'createdAt' => $product->getCreatedAt()->format('Y-m-d H:i:s'),
-            ];
-        }
-
-        return new JsonResponse($data, JsonResponse::HTTP_OK);
+        return new JsonResponse($this->productService->getAllProducts(), JsonResponse::HTTP_OK);
     }
 
     #[Route('/{id}', name: 'get_product', methods: ['GET'])]
