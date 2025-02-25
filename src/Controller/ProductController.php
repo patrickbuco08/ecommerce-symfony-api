@@ -44,7 +44,7 @@ class ProductController extends AbstractController
     {
         return new JsonResponse([
             'id' => $product->getId(),
-            'name' => $product->getName(),
+            'name' => $product->getTitle(),
             'description' => $product->getDescription(),
             'price' => $product->getPrice(),
             'stock' => $product->getStock(),

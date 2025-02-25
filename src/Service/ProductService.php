@@ -52,7 +52,7 @@ class ProductService
                 'name' => $product->getCategory()->getName(),
                 'slug' => $product->getCategory()->getSlug(),
             ],
-            'name' => $product->getName(),
+            'name' => $product->getTitle(),
             'description' => $product->getDescription(),
             'price' => $product->getPrice(),
             'stock' => $product->getStock(),

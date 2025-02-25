@@ -141,7 +141,7 @@ class AdminController extends AbstractController
             'total' => $order->getTotal(),
             'createdAt' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
             'items' => array_map(fn($item) => [
-                'product' => $item->getProduct()->getName(),
+                'product' => $item->getProduct()->getTitle(),
                 'quantity' => $item->getQuantity(),
                 'price' => $item->getPrice(),
             ], $order->getItems()->toArray())

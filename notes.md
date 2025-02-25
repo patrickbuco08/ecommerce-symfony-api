@@ -17,6 +17,10 @@ docker exec -it symfony_app bash
 php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
 
+### entity changes?
+php bin/console make:migration
+php bin/console doctrine:migrations:migrate
+
 ### Unable to create a signed JWT from the given configuration
 docker exec -it symfony_app php bin/console lexik:jwt:generate-keypair --overwrite
 
