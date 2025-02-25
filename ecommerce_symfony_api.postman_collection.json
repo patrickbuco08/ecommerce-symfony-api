@@ -45,7 +45,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"email\": \"patrick.buco@lamudi.com\",\n  \"password\": \"password\"\n}",
+					"raw": "{\n  \"email\": \"patrickbuco11@gmail.com\",\n  \"password\": \"password\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -353,7 +353,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Laptop #5\",\n  \"description\": \"High-performance laptop\",\n  \"price\": 1200.50,\n  \"stock\": 10\n}",
+					"raw": "{\n  \"title\": \"Laptop #1\",\n  \"category_id\": 1,\n  \"description\": \"High-performance laptop\",\n  \"price\": 1200.50,\n  \"stock\": 10,\n  \"rating\": 5\n}",
 					"options": {
 						"raw": {
 							"language": "json"

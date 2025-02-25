@@ -2,7 +2,9 @@
 
 namespace Bocum\Service;
 
+use Bocum\Entity\Category;
 use Bocum\Entity\Product;
+use Bocum\Entity\Review;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -19,15 +21,26 @@ class ProductService
 
     public function createProduct(array $data): array
     {
-        if (!isset($data['name'], $data['price'], $data['stock'])) {
+        if (!isset($data['title'], $data['price'], $data['stock'])) {
             return ['error' => 'Missing required fields'];
         }
 
+        $category = $this->entityManager->getRepository(Category::class)->findOneBy(['id' => $data['category_id']]);
+
+        if (!$category) {
+            return ['error' => 'Missing category'];
+        }
+
+
         $product = new Product();
-        $product->setName($data['name']);
+        $product->setTitle($data['title']);
+        $product->setCategory($category);
         $product->setDescription($data['description'] ?? null);
         $product->setPrice((float) $data['price']);
         $product->setStock((int) $data['stock']);
+        $product->setRating((float) $data['rating']);
+
+
 
         // Validate the product
         $errors = $this->validator->validate($product);
@@ -62,6 +75,11 @@ class ProductService
                 'id' => $item->getId(),
                 'name' => $item->getName(),
             ], $product->getTags()->toArray()),
+            'reviews' => array_map(fn(Review $item) => [
+                'id' => $item->getId(),
+                'rating' => $item->getRating(),
+                'comment' => $item->getComment(),
+            ], $product->getReviews()->toArray()),
             'name' => $product->getTitle(),
             'description' => $product->getDescription(),
             'price' => $product->getPrice(),

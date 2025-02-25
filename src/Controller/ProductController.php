@@ -56,7 +56,7 @@ class ProductController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (isset($data['name'])) {
-            $product->setName($data['name']);
+            $product->setTitle($data['name']);
         }
         if (isset($data['description'])) {
             $product->setDescription($data['description']);

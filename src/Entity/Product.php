@@ -47,19 +47,17 @@ class Product
     #[ORM\OneToMany(mappedBy: "product", targetEntity: Tag::class, cascade: ["persist", "remove"])]
     private Collection $tags;
 
+    #[ORM\OneToMany(mappedBy: "product", targetEntity: Review::class, cascade: ["persist", "remove"])]
+    private Collection $reviews;
+
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\PrePersist]
-    public function setCreatedAtValue(): void
-    {
-        $this->createdAt = new \DateTimeImmutable();
-    }
-
     public function __construct()
     {
         $this->tags = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -162,6 +160,30 @@ class Product
         return $this;
     }
 
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
+    public function addReview(Review $review): self
+    {
+        if (!$this->reviews->contains($review)) {
+            $this->reviews->add($review);
+            $review->setProduct($this);
+        }
+        return $this;
+    }
+
+    public function removeReview(Review $review): self
+    {
+        if ($this->reviews->removeElement($review)) {
+            if ($review->getProduct() === $this) {
+                $review->setProduct(null);
+            }
+        }
+        return $this;
+    }
+
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
@@ -172,5 +194,11 @@ class Product
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
     }
 }
