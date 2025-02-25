@@ -6,6 +6,8 @@ use Bocum\Entity\Category;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Bocum\Repository\ProductRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
@@ -34,8 +36,17 @@ class Product
     private ?float $price = null;
 
     #[ORM\Column]
+    #[Assert\Positive]
+    private ?float $rating = null;
+
+    #[ORM\Column]
     #[Assert\PositiveOrZero]
     private ?int $stock = null;
+
+
+    #[ORM\OneToMany(mappedBy: "product", targetEntity: Tag::class, cascade: ["persist", "remove"])]
+    private Collection $tags;
+
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -44,6 +55,11 @@ class Product
     public function setCreatedAtValue(): void
     {
         $this->createdAt = new \DateTimeImmutable();
+    }
+
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -98,6 +114,18 @@ class Product
         return $this;
     }
 
+    public function getRating(): ?float
+    {
+        return $this->rating;
+    }
+
+    public function setRating(float $rating): static
+    {
+        $this->rating = $rating;
+
+        return $this;
+    }
+
     public function getStock(): ?int
     {
         return $this->stock;
@@ -107,6 +135,30 @@ class Product
     {
         $this->stock = $stock;
 
+        return $this;
+    }
+
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+            $tag->setProduct($this);
+        }
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        if ($this->tags->removeElement($tag)) {
+            if ($tag->getProduct() === $this) {
+                $tag->setProduct(null);
+            }
+        }
         return $this;
     }
 

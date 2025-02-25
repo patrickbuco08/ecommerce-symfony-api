@@ -45,18 +45,28 @@ class ProductService
     {
         $products = $this->entityManager->getRepository(Product::class)->findAll();
 
-        return array_map(fn($product) => [
+        return array_map(fn($product) => $this->productToArray($product), $products);
+    }
+
+    public function productToArray(Product $product)
+    {
+        return [
             'id' => $product->getId(),
             'category' => [
                 'id' => $product->getCategory()->getId(),
                 'name' => $product->getCategory()->getName(),
                 'slug' => $product->getCategory()->getSlug(),
             ],
+            'rating' => $product->getRating(),
+            'tags' => array_map(fn($item) => [
+                'id' => $item->getId(),
+                'name' => $item->getName(),
+            ], $product->getTags()->toArray()),
             'name' => $product->getTitle(),
             'description' => $product->getDescription(),
             'price' => $product->getPrice(),
             'stock' => $product->getStock(),
             'createdAt' => $product->getCreatedAt()->format('Y-m-d H:i:s'),
-        ], $products);
+        ];
     }
 }

@@ -42,14 +42,7 @@ class ProductController extends AbstractController
     #[Route('/{id}', name: 'get_product', methods: ['GET'])]
     public function getProduct(Product $product): JsonResponse
     {
-        return new JsonResponse([
-            'id' => $product->getId(),
-            'name' => $product->getTitle(),
-            'description' => $product->getDescription(),
-            'price' => $product->getPrice(),
-            'stock' => $product->getStock(),
-            'createdAt' => $product->getCreatedAt()->format('Y-m-d H:i:s'),
-        ], JsonResponse::HTTP_OK);
+        return new JsonResponse($this->productService->productToArray($product), JsonResponse::HTTP_OK);
     }
 
     #[Route('/{id}', name: 'update_product', methods: ['PUT'])]
