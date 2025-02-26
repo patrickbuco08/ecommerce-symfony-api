@@ -50,6 +50,8 @@ class Product
     #[ORM\OneToMany(mappedBy: "product", targetEntity: Review::class, cascade: ["persist", "remove"])]
     private Collection $reviews;
 
+    #[ORM\OneToMany(mappedBy: "product", targetEntity: ProductImage::class, cascade: ["persist", "remove"])]
+    private Collection $images;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -58,6 +60,7 @@ class Product
     {
         $this->tags = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -179,6 +182,30 @@ class Product
         if ($this->reviews->removeElement($review)) {
             if ($review->getProduct() === $this) {
                 $review->setProduct(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(ProductImage $image): self
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setProduct($this);
+        }
+        return $this;
+    }
+
+    public function removeImage(ProductImage $image): self
+    {
+        if ($this->images->removeElement($image)) {
+            if ($image->getProduct() === $this) {
+                $image->setProduct(null);
             }
         }
         return $this;

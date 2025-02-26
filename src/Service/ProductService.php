@@ -65,12 +65,16 @@ class ProductService
     {
         return [
             'id' => $product->getId(),
+            'title' => $product->getTitle(),
+            'description' => $product->getDescription(),
+            'price' => $product->getPrice(),
+            'rating' => $product->getRating(),
+            'stock' => $product->getStock(),
             'category' => [
                 'id' => $product->getCategory()->getId(),
                 'name' => $product->getCategory()->getName(),
                 'slug' => $product->getCategory()->getSlug(),
             ],
-            'rating' => $product->getRating(),
             'tags' => array_map(fn($item) => [
                 'id' => $item->getId(),
                 'name' => $item->getName(),
@@ -80,10 +84,10 @@ class ProductService
                 'rating' => $item->getRating(),
                 'comment' => $item->getComment(),
             ], $product->getReviews()->toArray()),
-            'name' => $product->getTitle(),
-            'description' => $product->getDescription(),
-            'price' => $product->getPrice(),
-            'stock' => $product->getStock(),
+            'images' => array_map(fn($item) => [
+                'id' => $item->getId(),
+                'name' => $item->getName(),
+            ], $product->getImages()->toArray()),
             'createdAt' => $product->getCreatedAt()->format('Y-m-d H:i:s'),
         ];
     }
