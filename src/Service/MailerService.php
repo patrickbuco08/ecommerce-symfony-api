@@ -24,7 +24,7 @@ class MailerService
     public function sendEmail(string $to, string $subject, string $content): void
     {
         $email = (new Email())
-            ->from('noreply@ecommerce.com')
+            ->from('noreply@bocum.com')
             ->to($to)
             ->subject($subject)
             ->html($content);
@@ -39,7 +39,7 @@ class MailerService
         $invoicePath = $this->params->get('kernel.project_dir') . '/public' . $order->getInvoicePath();
 
         $email = (new Email())
-            ->from('noreply@ecommerce.com')
+            ->from('noreply@bocum.com')
             ->to($userEmail)
             ->subject('Your Order Invoice')
             ->html($this->twig->render('emails/invoice_email.html.twig', ['order' => $order]))

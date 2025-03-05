@@ -21,7 +21,7 @@ class RegisterController extends AbstractController
     public function register(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $result = $this->authService->registerUser($data);
+        $result = $this->authService->register($data);
 
         return new JsonResponse($result, isset($result['error']) ? JsonResponse::HTTP_BAD_REQUEST : JsonResponse::HTTP_CREATED);
     }

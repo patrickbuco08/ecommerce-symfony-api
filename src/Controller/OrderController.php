@@ -4,35 +4,34 @@ namespace Bocum\Controller;
 
 use Bocum\Entity\User;
 use Bocum\Entity\Order;
-use Bocum\Entity\Product;
-use Bocum\Entity\OrderItem;
 use Bocum\Enum\OrderStatus;
-use Pagerfanta\Pagerfanta;
+use Bocum\Service\OrderService;
 use Bocum\Service\PdfGenerator;
 use Bocum\Service\MailerService;
-use Bocum\Service\OrderService;
+use Bocum\Service\PaginationService;
 use Doctrine\ORM\EntityManagerInterface;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 #[Route('/api/orders')]
 class OrderController extends AbstractController
 {
     private OrderService $orderService;
+    private PaginationService $paginationService;
 
-    public function __construct(OrderService $orderService)
+    public function __construct(OrderService $orderService, PaginationService $paginationService)
     {
         $this->orderService = $orderService;
+        $this->paginationService = $paginationService;
     }
 
     #[Route('', name: 'create_order', methods: ['POST'])]
@@ -40,7 +39,7 @@ class OrderController extends AbstractController
     public function createOrder(Request $request, #[CurrentUser] UserInterface $user): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $result = $this->orderService->createOrder($user, $data);
+        $result = $this->orderService->create($user, $data);
 
         return new JsonResponse($result, isset($result['error']) ? JsonResponse::HTTP_BAD_REQUEST : JsonResponse::HTTP_CREATED);
     }
@@ -124,34 +123,13 @@ class OrderController extends AbstractController
             ->setParameter('status', $status)
             ->orderBy('o.createdAt', 'DESC');
 
-        // Create a pagination adapter
-        $adapter = new QueryAdapter($queryBuilder);
-        $pagerfanta = new Pagerfanta($adapter);
-
-        // Get the requested page, default to page 1
-        $page = max(1, (int) $request->query->get('page', 1));
-        $pagerfanta->setMaxPerPage(10); // Set items per page
-        $pagerfanta->setCurrentPage($page);
-
-        // Convert paginated results to JSON
-        $data = array_map(fn($order) => [
-            'id' => $order->getId(),
-            'user' => $order->getUser()->getEmail(),
-            'status' => $order->getStatus()->value,
-            'total' => $order->getTotal(),
-            'createdAt' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
-            'items' => array_map(fn($item) => [
-                'product' => $item->getProduct()->getTitle(),
-                'quantity' => $item->getQuantity(),
-                'price' => $item->getPrice(),
-            ], $order->getItems()->toArray())
-        ], iterator_to_array($pagerfanta->getCurrentPageResults()));
+        $pagination = $this->paginationService->paginate($queryBuilder, $request);
 
         return new JsonResponse([
-            'page' => $page,
-            'total_pages' => $pagerfanta->getNbPages(),
-            'total_orders' => $pagerfanta->getNbResults(),
-            'orders' => $data
+            'page' => $pagination['page'],
+            'total_pages' => $pagination['total_pages'],
+            'total_orders' => $pagination['total_results'],
+            'orders' => array_map(fn($order) => $this->orderService->orderToArray($order), $pagination['results'])
         ]);
     }
 
@@ -175,30 +153,13 @@ class OrderController extends AbstractController
             ->setParameter('status', $status)
             ->orderBy('o.createdAt', 'DESC');
 
-        $adapter = new QueryAdapter($queryBuilder);
-        $pagerfanta = new Pagerfanta($adapter);
-
-        $page = max(1, (int) $request->query->get('page', 1));
-        $pagerfanta->setMaxPerPage(10);
-        $pagerfanta->setCurrentPage($page);
-
-        $data = array_map(fn($order) => [
-            'id' => $order->getId(),
-            'status' => $order->getStatus()->value,
-            'total' => $order->getTotal(),
-            'createdAt' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
-            'items' => array_map(fn($item) => [
-                'product' => $item->getProduct()->getTitle(),
-                'quantity' => $item->getQuantity(),
-                'price' => $item->getPrice(),
-            ], $order->getItems()->toArray())
-        ], iterator_to_array($pagerfanta->getCurrentPageResults()));
+        $pagination = $this->paginationService->paginate($queryBuilder, $request);
 
         return new JsonResponse([
-            'page' => $page,
-            'total_pages' => $pagerfanta->getNbPages(),
-            'total_orders' => $pagerfanta->getNbResults(),
-            'orders' => $data
+            'page' => $pagination['page'],
+            'total_pages' => $pagination['total_pages'],
+            'total_orders' => $pagination['total_results'],
+            'orders' => array_map(fn($order) => $this->orderService->orderToArray($order), $pagination['results'])
         ]);
     }
 

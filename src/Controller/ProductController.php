@@ -4,13 +4,11 @@ namespace Bocum\Controller;
 
 use Bocum\Entity\Product;
 use Bocum\Service\ProductService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/products')]
 class ProductController extends AbstractController
@@ -28,7 +26,7 @@ class ProductController extends AbstractController
         Request $request,
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
-        $result = $this->productService->createProduct($data);
+        $result = $this->productService->create($data);
 
         return new JsonResponse($result, isset($result['error']) ? JsonResponse::HTTP_BAD_REQUEST : JsonResponse::HTTP_CREATED);
     }
@@ -50,45 +48,19 @@ class ProductController extends AbstractController
     public function updateProduct(
         Request $request,
         Product $product,
-        EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
-        if (isset($data['name'])) {
-            $product->setTitle($data['name']);
-        }
-        if (isset($data['description'])) {
-            $product->setDescription($data['description']);
-        }
-        if (isset($data['price'])) {
-            $product->setPrice((float) $data['price']);
-        }
-        if (isset($data['stock'])) {
-            $product->setStock((int) $data['stock']);
-        }
-
-        // Validate the updated product
-        $errors = $validator->validate($product);
-        if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage();
-            }
-            return new JsonResponse(['errors' => $errorMessages], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $entityManager->flush();
+        $this->productService->update($product, $data);
 
         return new JsonResponse(['message' => 'Product updated successfully'], JsonResponse::HTTP_OK);
     }
 
     #[Route('/{id}', name: 'delete_product', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function deleteProduct(Product $product, EntityManagerInterface $entityManager): JsonResponse
+    public function deleteProduct(Product $product): JsonResponse
     {
-        $entityManager->remove($product);
-        $entityManager->flush();
+        $this->productService->destroy($product);
 
         return new JsonResponse(['message' => 'Product deleted successfully'], JsonResponse::HTTP_OK);
     }

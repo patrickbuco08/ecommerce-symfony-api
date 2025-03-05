@@ -2,13 +2,12 @@
 
 namespace Bocum\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Bocum\Entity\User;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Bocum\Entity\User;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 class AuthController extends AbstractController
 {
