@@ -3,22 +3,19 @@
 namespace Bocum\Service;
 
 use Bocum\Entity\User;
+use Bocum\Event\UserRegisteredEvent;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AuthService
 {
-    private EntityManagerInterface $entityManager;
-    private UserService $userService;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        UserService $userService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->userService = $userService;
-    }
+        private EntityManagerInterface $entityManager,
+        private UserService $userService,
+        private EventDispatcherInterface $eventDispatcher
+    ) {}
 
-    public function register(array $data): array
+    public function register(array $data)
     {
         if (!isset($data['email'], $data['password'])) {
             return ['error' => 'Email and password are required'];
@@ -30,6 +27,11 @@ class AuthService
             return ['error' => 'User already exists'];
         }
 
-        return $this->userService->create($data);
+        $user = $this->userService->create($data);
+
+        $event = new UserRegisteredEvent($user);
+        $this->eventDispatcher->dispatch($event);
+
+        return ['success' => 'User registered successfully'];
     }
 }

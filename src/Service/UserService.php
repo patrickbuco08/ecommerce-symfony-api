@@ -39,7 +39,7 @@ class UserService
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return ['message' => 'User registered successfully', 'user_id' => $user->getId()];
+        return $user;
     }
 
     public function get(User $user): array

@@ -10,12 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RegisterController extends AbstractController
 {
-    private AuthService $authService;
-
-    public function __construct(AuthService $authService)
-    {
-        $this->authService = $authService;
-    }
+    public function __construct(private AuthService $authService) {}
 
     #[Route('/api/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
