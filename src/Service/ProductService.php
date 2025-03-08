@@ -5,20 +5,18 @@ namespace Bocum\Service;
 use Bocum\Entity\Review;
 use Bocum\Entity\Product;
 use Bocum\Entity\Category;
+use Bocum\Transformer\ProductTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProductService
 {
-    private EntityManagerInterface $entityManager;
-    private ValidatorInterface $validator;
-
-    public function __construct(EntityManagerInterface $entityManager, ValidatorInterface $validator)
-    {
-        $this->entityManager = $entityManager;
-        $this->validator = $validator;
-    }
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private ValidatorInterface $validator,
+        private ProductTransformer $productTransformer
+    ) {}
 
     public function create(array $data): array
     {
@@ -93,37 +91,11 @@ class ProductService
     {
         $products = $this->entityManager->getRepository(Product::class)->findAll();
 
-        return array_map(fn($product) => $this->productToArray($product), $products);
+        return $this->productTransformer->transformCollection($products);
     }
 
     public function productToArray(Product $product)
     {
-        return [
-            'id' => $product->getId(),
-            'title' => $product->getTitle(),
-            'description' => $product->getDescription(),
-            'price' => $product->getPrice(),
-            'rating' => $product->getRating(),
-            'stock' => $product->getStock(),
-            'category' => [
-                'id' => $product->getCategory()->getId(),
-                'name' => $product->getCategory()->getName(),
-                'slug' => $product->getCategory()->getSlug(),
-            ],
-            'tags' => array_map(fn($item) => [
-                'id' => $item->getId(),
-                'name' => $item->getName(),
-            ], $product->getTags()->toArray()),
-            'reviews' => array_map(fn(Review $item) => [
-                'id' => $item->getId(),
-                'rating' => $item->getRating(),
-                'comment' => $item->getComment(),
-            ], $product->getReviews()->toArray()),
-            'images' => array_map(fn($item) => [
-                'id' => $item->getId(),
-                'name' => $item->getName(),
-            ], $product->getImages()->toArray()),
-            'createdAt' => $product->getCreatedAt()->format('Y-m-d H:i:s'),
-        ];
+        return $this->productTransformer->transform($product);
     }
 }
