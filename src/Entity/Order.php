@@ -8,7 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Bocum\Repository\OrderRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: 'orders')]
@@ -19,9 +18,6 @@ class Order
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'string', enumType: OrderStatus::class)]
     private OrderStatus $status = OrderStatus::PENDING;
@@ -39,6 +35,18 @@ class Order
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $invoicePath = null;
 
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $paymentMethod = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $paymentTransactionId = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $paidAt = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -49,11 +57,6 @@ class Order
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
     }
 
     public function getStatus(): OrderStatus
@@ -122,6 +125,46 @@ class Order
     {
         $this->invoicePath = $invoicePath;
 
+        return $this;
+    }
+
+    public function getPaymentMethod(): ?string
+    {
+        return $this->paymentMethod;
+    }
+
+    public function setPaymentMethod(?string $paymentMethod): self
+    {
+        $this->paymentMethod = $paymentMethod;
+
+        return $this;
+    }
+
+    public function getPaymentTransactionId(): ?string
+    {
+        return $this->paymentTransactionId;
+    }
+
+    public function setPaymentTransactionId(?string $paymentTransactionId): self
+    {
+        $this->paymentTransactionId = $paymentTransactionId;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getPaidAt(): ?\DateTimeInterface
+    {
+        return $this->paidAt;
+    }
+
+    public function setPaidAt(?\DateTimeInterface $paidAt): self
+    {
+        $this->paidAt = $paidAt;
         return $this;
     }
 }

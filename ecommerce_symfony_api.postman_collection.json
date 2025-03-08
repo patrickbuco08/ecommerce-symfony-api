@@ -45,7 +45,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"email\": \"patrickbuco11@gmail.com\",\n  \"password\": \"password\"\n}",
+					"raw": "{\n  \"email\": \"patrickbuco26@gmail.com\",\n  \"password\": \"password\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -318,7 +318,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/products/1",
+					"raw": "http://127.0.0.1:8000/api/products/3",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -330,7 +330,7 @@
 					"path": [
 						"api",
 						"products",
-						"1"
+						"3"
 					]
 				}
 			},
@@ -353,7 +353,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"title\": \"Laptop #1\",\n  \"category_id\": 1,\n  \"description\": \"High-performance laptop\",\n  \"price\": 1200.50,\n  \"stock\": 10,\n  \"rating\": 5\n}",
+					"raw": "{\n  \"title\": \"Laptop #10\",\n  \"category_id\": 1,\n  \"description\": \"High-performance laptop\",\n  \"price\": 1200.50,\n  \"stock\": 10,\n  \"rating\": 5\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -395,7 +395,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"price\": 1300.00,\n  \"stock\": 5\n}",
+					"raw": "{\n  \"description\": \"High-performance laptop #3\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -705,6 +705,52 @@
 			"response": []
 		},
 		{
+			"name": "/pay/{method}/{amount}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ecommerce_symfony_api_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/pay/paypal/500",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"pay",
+						"paypal",
+						"500"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "/orders",
 			"request": {
 				"auth": {
@@ -721,7 +767,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"items\": [\n    { \"product_id\": 2, \"quantity\": 2 },\n    { \"product_id\": 3, \"quantity\": 1 }\n  ]\n}",
+					"raw": "{\n  \"items\": [\n    { \"product_id\": 1, \"quantity\": 2 },\n    { \"product_id\": 2, \"quantity\": 1 }\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
