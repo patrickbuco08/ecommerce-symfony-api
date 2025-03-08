@@ -2,29 +2,24 @@
 
 namespace Bocum\Service;
 
-use Bocum\Entity\Order;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Twig\Environment;
+use Bocum\Entity\Order;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class MailerService
 {
-    private MailerInterface $mailer;
-    private Environment $twig;
-    private ParameterBagInterface $params;
-
-    public function __construct(MailerInterface $mailer, Environment $twig, ParameterBagInterface $params)
-    {
-        $this->mailer = $mailer;
-        $this->twig = $twig;
-        $this->params = $params;
-    }
+    public function __construct(
+        private MailerInterface $mailer,
+        private Environment $twig,
+        private ParameterBagInterface $params
+    ) {}
 
     public function sendEmail(string $to, string $subject, string $content): void
     {
         $email = (new Email())
-            ->from('noreply@bocum.com')
+            ->from($this->params->get('mailer_sender'))
             ->to($to)
             ->subject($subject)
             ->html($content);
@@ -39,7 +34,7 @@ class MailerService
         $invoicePath = $this->params->get('kernel.project_dir') . '/public' . $order->getInvoicePath();
 
         $email = (new Email())
-            ->from('noreply@bocum.com')
+            ->from($this->params->get('mailer_sender'))
             ->to($userEmail)
             ->subject('Your Order Invoice')
             ->html($this->twig->render('emails/invoice_email.html.twig', ['order' => $order]))
