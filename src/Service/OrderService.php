@@ -4,19 +4,24 @@ namespace Bocum\Service;
 
 use Bocum\Entity\User;
 use Bocum\Entity\Order;
-use Bocum\Entity\Product;
-use Bocum\Entity\OrderItem;
+use Bocum\Enum\OrderStatus;
+use Bocum\Factory\OrderFactory;
+use Bocum\Service\MailerService;
+use Bocum\Transformer\OrderTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class OrderService
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private MailerService $mailerService,
+        private ParameterBagInterface $params,
+        private PdfGenerator $pdfGenerator,
+        private OrderFactory $orderFactory,
+        private OrderTransformer $orderTransformer,
+    ) {}
 
     public function create(UserInterface $user, array $data): array
     {
@@ -24,26 +29,7 @@ class OrderService
             return ['error' => 'Invalid order data'];
         }
 
-        $order = new Order();
-        $order->setUser($user);
-        $total = 0;
-
-        foreach ($data['items'] as $itemData) {
-            $product = $this->entityManager->getRepository(Product::class)->find($itemData['product_id']);
-            if (!$product) {
-                return ['error' => 'Product not found'];
-            }
-
-            $orderItem = new OrderItem();
-            $orderItem->setProduct($product);
-            $orderItem->setQuantity($itemData['quantity']);
-            $orderItem->setPrice($product->getPrice() * $itemData['quantity']);
-            $total += $orderItem->getPrice();
-
-            $order->addItem($orderItem);
-        }
-
-        $order->setTotal($total);
+        $order = $this->orderFactory->createOrder($user, $data['items']);
         $this->entityManager->persist($order);
         $this->entityManager->flush();
 
@@ -52,22 +38,35 @@ class OrderService
 
     public function getUserOrders(User $user): array
     {
-        return array_map(fn($order) => $this->orderToArray($order), $user->getOrders()->toArray());
+        return $this->orderTransformer->transformCollection($user->getOrders()->toArray());
+    }
+
+    public function updateOrderStatus(Order $order, $data): Order
+    {
+        $newStatus = OrderStatus::from($data['status']);
+
+        $order->setStatus($newStatus);
+
+        // If order is marked as completed, generate an invoice
+        if ($newStatus === OrderStatus::COMPLETED && !$order->getInvoicePath()) {
+            $invoiceDir = $this->params->get('kernel.project_dir') . '/public/invoices';
+            if (!is_dir($invoiceDir)) {
+                mkdir($invoiceDir, 0777, true);
+            }
+
+            $invoicePath = $this->pdfGenerator->generateAndSaveInvoice($order, $invoiceDir);
+            $order->setInvoicePath('/invoices/' . basename($invoicePath));
+
+            $this->mailerService->sendInvoiceEmail($order);
+        }
+
+        $this->entityManager->flush();
+
+        return $order;
     }
 
     public function orderToArray(Order $order)
     {
-        return [
-            'id' => $order->getId(),
-            'user' => $order->getUser()->getEmail(),
-            'status' => $order->getStatus()->value,
-            'total' => $order->getTotal(),
-            'createdAt' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
-            'items' => array_map(fn($item) => [
-                'product' => $item->getProduct()->getTitle(),
-                'quantity' => $item->getQuantity(),
-                'price' => $item->getPrice(),
-            ], $order->getItems()->toArray())
-        ];
+        return $this->orderTransformer->transform($order);
     }
 }

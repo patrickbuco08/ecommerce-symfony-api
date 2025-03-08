@@ -54,7 +54,7 @@
 			<tbody>
 				{% for item in order.getItems() %}
 					<tr>
-						<td>{{ item.getProduct().getName() }}</td>
+						<td>{{ item.getProduct().getTitle() }}</td>
 						<td>{{ item.getQuantity() }}</td>
 						<td>${{ item.getPrice()|number_format(2) }}</td>
 					</tr>

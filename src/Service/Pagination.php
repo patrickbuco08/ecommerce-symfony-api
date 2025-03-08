@@ -6,9 +6,9 @@ use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\Request;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
-class PaginationService
+class Pagination
 {
-    public function paginate($queryBuilder, Request $request, int $maxPerPage = 10): array
+    public static function paginate($queryBuilder, Request $request, int $maxPerPage = 10): array
     {
         $adapter = new QueryAdapter($queryBuilder);
         $pagerfanta = new Pagerfanta($adapter);
