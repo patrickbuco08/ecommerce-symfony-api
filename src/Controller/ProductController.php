@@ -26,6 +26,11 @@ class ProductController extends AbstractController
         Request $request,
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['title'], $data['price'], $data['stock'])) {
+            return new JsonResponse(['error' => 'Missing required fields']);
+        }
+
         $result = $this->productService->create($data);
 
         return new JsonResponse($result, isset($result['error']) ? JsonResponse::HTTP_BAD_REQUEST : JsonResponse::HTTP_CREATED);

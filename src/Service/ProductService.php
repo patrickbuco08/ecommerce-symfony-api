@@ -2,11 +2,11 @@
 
 namespace Bocum\Service;
 
-use Bocum\Entity\Review;
 use Bocum\Entity\Product;
 use Bocum\Entity\Category;
-use Bocum\Transformer\ProductTransformer;
+use Bocum\Factory\ProductFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Bocum\Transformer\ProductTransformer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -20,28 +20,21 @@ class ProductService
 
     public function create(array $data): array
     {
-        if (!isset($data['title'], $data['price'], $data['stock'])) {
-            return ['error' => 'Missing required fields'];
-        }
-
         $category = $this->entityManager->getRepository(Category::class)->findOneBy(['id' => $data['category_id']]);
 
         if (!$category) {
             return ['error' => 'Missing category'];
         }
 
+        $product = ProductFactory::create(
+            $data['title'],
+            $category,
+            $data['description'] ?? null,
+            (float) $data['price'],
+            (int) $data['stock'],
+            (float) $data['rating']
+        );
 
-        $product = new Product();
-        $product->setTitle($data['title']);
-        $product->setCategory($category);
-        $product->setDescription($data['description'] ?? null);
-        $product->setPrice((float) $data['price']);
-        $product->setStock((int) $data['stock']);
-        $product->setRating((float) $data['rating']);
-
-
-
-        // Validate the product
         $errors = $this->validator->validate($product);
         if (count($errors) > 0) {
             return ['errors' => array_map(fn($e) => $e->getMessage(), iterator_to_array($errors))];
