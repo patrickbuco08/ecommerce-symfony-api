@@ -4,6 +4,7 @@ namespace Bocum\Entity;
 
 use Bocum\Entity\User;
 use Bocum\Enum\OrderStatus;
+use Bocum\Enum\PaymentOption;
 use Doctrine\ORM\Mapping as ORM;
 use Bocum\Repository\OrderRepository;
 use Doctrine\Common\Collections\Collection;
@@ -35,8 +36,8 @@ class Order
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $invoicePath = null;
 
-    #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    private ?string $paymentMethod = null;
+    #[ORM\Column(type: 'string', length: 50, enumType: PaymentOption::class)]
+    private PaymentOption $paymentMethod = PaymentOption::CASH;
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $paymentTransactionId = null;
@@ -52,6 +53,7 @@ class Order
         $this->createdAt = new \DateTimeImmutable();
         $this->items = new ArrayCollection();
         $this->status = OrderStatus::PENDING;
+        $this->paymentMethod = PaymentOption::CASH;
     }
 
     public function getId(): ?int
@@ -128,12 +130,12 @@ class Order
         return $this;
     }
 
-    public function getPaymentMethod(): ?string
+    public function getPaymentMethod(): PaymentOption
     {
         return $this->paymentMethod;
     }
 
-    public function setPaymentMethod(?string $paymentMethod): self
+    public function setPaymentMethod(PaymentOption $paymentMethod): self
     {
         $this->paymentMethod = $paymentMethod;
 

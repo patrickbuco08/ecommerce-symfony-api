@@ -2,31 +2,28 @@
 
 namespace Bocum\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Bocum\Service\PaymentService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Bocum\Service\Payment\PaymentProcessor;
-use Bocum\Service\Payment\PaypalPaymentStrategy;
-use Bocum\Service\Payment\StripePaymentStrategy;
-use Bocum\Service\Payment\GcashPaymentStrategy;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+#[Route('/api/pay')]
 class PaymentController extends AbstractController
 {
-    #[Route('/pay/{method}/{amount}', name: 'make_payment')]
-    public function pay(string $method, float $amount): JsonResponse
+    public function __construct(
+        private PaymentService $paymentService
+    ) {}
+
+    #[Route('', name: 'make_payment', methods: ['POST'])]
+    public function pay(Request $request,  #[CurrentUser] UserInterface $user): JsonResponse
     {
-        // Select payment method dynamically
-        $paymentStrategy = match ($method) {
-            'paypal' => new PaypalPaymentStrategy(),
-            'stripe' => new StripePaymentStrategy(),
-            'gcash' => new GcashPaymentStrategy(),
-            default => throw new \Exception('Invalid payment method'),
-        };
+        $data = json_decode($request->getContent(), true);
 
-        // Process payment
-        $processor = new PaymentProcessor($paymentStrategy);
-        $result = $processor->processPayment($amount);
+        $result = $this->paymentService->processPayment($data, $user);
 
-        return $this->json(['message' => $result]);
+        return new JsonResponse($result, isset($result['error']) ? JsonResponse::HTTP_BAD_REQUEST : JsonResponse::HTTP_OK);
     }
 }

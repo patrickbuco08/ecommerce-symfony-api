@@ -2,6 +2,7 @@
 
 namespace Bocum\Entity;
 
+use Bocum\Enum\PaymentOption;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -22,8 +23,8 @@ class Payment
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?User $user = null;
 
-    #[ORM\Column(type: 'string', length: 50)]
-    private string $paymentMethod;
+    #[ORM\Column(type: 'string', length: 50, enumType: PaymentOption::class, nullable: true)]
+    private ?PaymentOption $paymentMethod = null;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
     private string $transactionId;
@@ -77,12 +78,12 @@ class Payment
         return $this;
     }
 
-    public function getPaymentMethod(): string
+    public function getPaymentMethod(): PaymentOption
     {
         return $this->paymentMethod;
     }
 
-    public function setPaymentMethod(string $paymentMethod): self
+    public function setPaymentMethod(PaymentOption $paymentMethod): self
     {
         $this->paymentMethod = $paymentMethod;
         return $this;

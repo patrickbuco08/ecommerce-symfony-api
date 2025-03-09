@@ -2,7 +2,9 @@
 
 namespace Bocum\Service\Payment;
 
+use Bocum\Dto\PaymentDto;
+
 interface PaymentStrategyInterface
 {
-    public function pay(float $amount): string;
+    public function pay(PaymentDto $payment);
 }
