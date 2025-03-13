@@ -43,6 +43,17 @@ services:
     networks:
       - symfony_network
 
+  apollo-server:
+    build:
+      context: ./apollo-server
+    container_name: apollo_server
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./apollo-server:/usr/src/app
+    depends_on:
+      - app
+
 volumes:
   db_data:
 
