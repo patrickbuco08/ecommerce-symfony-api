@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -14,12 +14,12 @@ services:
     networks:
       - symfony_network
     env_file:
-      - .env  # Loads variables from .env into the container
+      - .env # Loads variables from .env into the container
 
   database:
     image: mysql:8.0
     ports:
-      - '${DB_PORT}:3306'
+      - "${DB_PORT}:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -53,6 +53,15 @@ services:
       - ./apollo-server:/usr/src/app
     depends_on:
       - app
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    networks:
+      - symfony_network
+    ports:
+      - "6379:6379"
 
 volumes:
   db_data:

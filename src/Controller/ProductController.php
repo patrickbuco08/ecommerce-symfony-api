@@ -45,7 +45,7 @@ class ProductController extends AbstractController
     }
 
     #[Route('/{id}', name: 'get_product', methods: ['GET'])]
-    public function getProduct(Request $request, Product $product, RateLimiterFactory $loginLimiter): JsonResponse
+    public function getProduct(Request $request, $id, RateLimiterFactory $loginLimiter): JsonResponse
     {
         $limiter = $loginLimiter->create($request->getClientIp());
 
@@ -53,7 +53,7 @@ class ProductController extends AbstractController
             throw new TooManyRequestsHttpException('Too many login attempts, please try again later.');
         }
 
-        return new JsonResponse($this->productService->productToArray($product), JsonResponse::HTTP_OK);
+        return new JsonResponse($this->productService->getProductById($id), JsonResponse::HTTP_OK);
     }
 
     #[Route('/{id}', name: 'update_product', methods: ['PUT'])]

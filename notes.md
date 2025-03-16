@@ -38,3 +38,7 @@ flush -> php bin/console messenger:reset
 
 ### check if doctrine detects your entities
 - php bin/console doctrine:mapping:info
+
+### Redis
+docker exec -it redis redis-cli
+KEYS *

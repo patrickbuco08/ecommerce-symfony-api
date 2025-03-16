@@ -7,16 +7,32 @@ use Bocum\Entity\Category;
 use Bocum\Factory\ProductFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Bocum\Transformer\ProductTransformer;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ProductService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ValidatorInterface $validator,
-        private ProductTransformer $productTransformer
+        private ProductTransformer $productTransformer,
+        private CacheInterface $cache
     ) {}
+
+    public function getProductById(int $id)
+    {
+        return $this->cache->get("product_{$id}", function () use ($id) {
+            $product = $this->entityManager->getRepository(Product::class)->find($id);
+
+            if (!$product) {
+                throw new NotFoundHttpException('Product not found');
+            }
+
+            return $this->productToArray($product);
+        });
+    }
 
     public function create(array $data): array
     {
