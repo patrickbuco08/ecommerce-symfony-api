@@ -1,6 +1,6 @@
 <?php
 
-namespace Bocum\Controller;
+namespace Bocum\Controller\Admin;
 
 use Bocum\Entity\Order;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,10 +11,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+#[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {
     #[Route('/api/admin/dashboard', name: 'admin_dashboard', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN')]
     public function getOrderStatistics(EntityManagerInterface $entityManager): JsonResponse
     {
         $orderRepo = $entityManager->getRepository(Order::class);
@@ -44,7 +44,6 @@ class AdminController extends AbstractController
     }
 
     #[Route('/api/admin/dashboard/stats', name: 'admin_dashboard_stats', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN')]
     public function getDashboardStats(EntityManagerInterface $entityManager): JsonResponse
     {
         $orderRepo = $entityManager->getRepository(Order::class);
@@ -69,7 +68,7 @@ class AdminController extends AbstractController
         // Orders per month for the last 12 months
         $orders = $entityManager->createQuery(
             "SELECT o.createdAt, COUNT(o.id) as count
-             FROM App\Entity\Order o
+             FROM Bocum\Entity\Order o
              WHERE o.createdAt >= :lastYear
              GROUP BY o.createdAt
              ORDER BY o.createdAt ASC"

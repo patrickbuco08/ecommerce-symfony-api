@@ -18,6 +18,7 @@ class ProductService
         private EntityManagerInterface $entityManager,
         private ValidatorInterface $validator,
         private ProductTransformer $productTransformer,
+        private ProductFactory $productFactory,
         private CacheInterface $cache
     ) {}
 
@@ -25,6 +26,19 @@ class ProductService
     {
         return $this->cache->get("product_{$id}", function () use ($id) {
             $product = $this->entityManager->getRepository(Product::class)->find($id);
+
+            if (!$product) {
+                throw new NotFoundHttpException('Product not found');
+            }
+
+            return $this->productToArray($product);
+        });
+    }
+
+    public function getProductBySlug(string $slug)
+    {
+        return $this->cache->get("product_slug_{$slug}", function () use ($slug) {
+            $product = $this->entityManager->getRepository(Product::class)->findOneBy(['slug' => $slug]);
 
             if (!$product) {
                 throw new NotFoundHttpException('Product not found');
@@ -42,7 +56,7 @@ class ProductService
             return ['error' => 'Missing category'];
         }
 
-        $product = ProductFactory::create(
+        $product = $this->productFactory->create(
             $data['title'],
             $category,
             $data['description'] ?? null,
