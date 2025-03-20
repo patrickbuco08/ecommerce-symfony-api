@@ -27,7 +27,7 @@ class Order
     private Collection $items;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'orders')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
 
     #[ORM\Column]
@@ -47,6 +47,12 @@ class Order
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $paidAt = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $guestName = null;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $guestPhone = null;
 
     public function __construct()
     {
@@ -112,7 +118,7 @@ class Order
         return $this->user;
     }
 
-    public function setUser(User $user): self
+    public function setUser(?User $user): self
     {
         $this->user = $user;
         return $this;
@@ -167,6 +173,28 @@ class Order
     public function setPaidAt(?\DateTimeInterface $paidAt): self
     {
         $this->paidAt = $paidAt;
+        return $this;
+    }
+
+    public function getGuestName(): ?string
+    {
+        return $this->guestName;
+    }
+
+    public function setGuestName(?string $guestName): self
+    {
+        $this->guestName = $guestName;
+        return $this;
+    }
+
+    public function getGuestPhone(): ?string
+    {
+        return $this->guestPhone;
+    }
+
+    public function setGuestPhone(?string $guestPhone): self
+    {
+        $this->guestPhone = $guestPhone;
         return $this;
     }
 }

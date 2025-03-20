@@ -2,7 +2,7 @@
 
 namespace Bocum\Factory;
 
-use Bocum\Entity\User;
+use Bocum\Dto\OrderData;
 use Bocum\Entity\Order;
 use Bocum\Entity\Product;
 use Bocum\Entity\OrderItem;
@@ -12,13 +12,15 @@ class OrderFactory
 {
     public function __construct(private EntityManagerInterface $entityManager) {}
 
-    public function createOrder(User $user, array $items): Order
+    public function createOrder(OrderData $od): Order
     {
         $order = new Order();
-        $order->setUser($user);
+        $order->setUser($od->user);
+        $order->setGuestName($od->guestName);
+        $order->setGuestPhone($od->guestPhone);
         $total = 0;
 
-        foreach ($items as $itemData) {
+        foreach ($od->items as $itemData) {
             $product = $this->entityManager->getRepository(Product::class)->find($itemData['product_id']);
 
             if (!$product) {

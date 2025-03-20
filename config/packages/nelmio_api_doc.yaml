@@ -1,0 +1,14 @@
+nelmio_api_doc:
+  documentation:
+    info:
+      title: "Ecommerce API"
+      description: "API documentation for the Symfony eCommerce project"
+      version: "1.0.0"
+    components:
+      securitySchemes:
+        BearerAuth:
+          type: http
+          scheme: bearer
+  areas:
+    path_patterns:
+      - ^/api # Generate docs only for API routes

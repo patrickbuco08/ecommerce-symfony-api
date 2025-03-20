@@ -4,6 +4,7 @@ namespace Bocum\Service;
 
 use Bocum\Entity\User;
 use Bocum\Entity\Order;
+use Bocum\Dto\OrderData;
 use Bocum\Enum\OrderStatus;
 use Bocum\Factory\OrderFactory;
 use Bocum\Service\MailerService;
@@ -29,7 +30,7 @@ class OrderService
             return ['error' => 'Invalid order data'];
         }
 
-        $order = $this->orderFactory->createOrder($user, $data['items']);
+        $order = $this->orderFactory->createOrder(OrderData::fromArray($data, $user));
         $this->entityManager->persist($order);
         $this->entityManager->flush();
 
