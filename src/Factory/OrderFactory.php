@@ -2,7 +2,7 @@
 
 namespace Bocum\Factory;
 
-use Bocum\Dto\OrderData;
+use Bocum\Dto\Request\OrderData;
 use Bocum\Entity\Order;
 use Bocum\Entity\Product;
 use Bocum\Entity\OrderItem;

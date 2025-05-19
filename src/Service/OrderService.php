@@ -4,7 +4,7 @@ namespace Bocum\Service;
 
 use Bocum\Entity\User;
 use Bocum\Entity\Order;
-use Bocum\Dto\OrderData;
+use Bocum\Dto\Request\OrderData;
 use Bocum\Enum\OrderStatus;
 use Bocum\Factory\OrderFactory;
 use Bocum\Service\MailerService;

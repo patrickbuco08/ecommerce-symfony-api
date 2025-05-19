@@ -1,6 +1,6 @@
 <?php
 
-namespace Bocum\Dto;
+namespace Bocum\Dto\Request;
 
 use Bocum\Entity\User;
 

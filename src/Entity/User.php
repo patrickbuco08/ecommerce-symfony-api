@@ -45,10 +45,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: "user", targetEntity: Review::class, cascade: ["persist", "remove"])]
     private Collection $reviews;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Cart::class, cascade: ['persist', 'remove'])]
+    private Collection $carts;
+
     public function __construct()
     {
         $this->orders = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->carts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -131,13 +135,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->orders;
     }
 
-
     /**
      * @return Collection<int, Review>
      */
     public function getReviews(): Collection
     {
         return $this->reviews;
+    }
+
+    /**
+     * @return Collection<int, Cart>
+     */
+    public function getCarts(): Collection
+    {
+        return $this->carts;
     }
 
     public function addReview(Review $review): self
@@ -154,6 +165,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->reviews->removeElement($review)) {
             if ($review->getUser() === $this) {
                 $review->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    public function addCart(Cart $cart): self
+    {
+        if (!$this->carts->contains($cart)) {
+            $this->carts->add($cart);
+            $cart->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeCart(Cart $cart): self
+    {
+        if ($this->carts->removeElement($cart)) {
+            if ($cart->getUser() === $this) {
+                $cart->setUser(null);
             }
         }
         return $this;
