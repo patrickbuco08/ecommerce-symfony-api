@@ -11,5 +11,6 @@ class UserDto
         public string $phone,
         public string $email,
         public array $roles,
+        public ?string $image = null,
     ) {}
 }

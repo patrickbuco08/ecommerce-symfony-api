@@ -2,5 +2,5 @@ framework:
     rate_limiter:
         login:
             policy: "sliding_window"
-            limit: 5 # Allow only 5 attempts
+            limit: 100 # Allow only 100 attempts
             interval: "1 minute" # Reset after 1 minute

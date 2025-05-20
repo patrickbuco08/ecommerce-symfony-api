@@ -16,6 +16,7 @@ class UserTransformer
             $user->getPhone(),
             $user->getEmail(),
             $user->getRoles(),
+            $user->getImage(),
         );
     }
 

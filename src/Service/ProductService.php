@@ -37,7 +37,7 @@ class ProductService
 
     public function getProductBySlug(string $slug)
     {
-        return $this->cache->get("product_slug_{$slug}", function () use ($slug) {
+        return $this->cache->get("product_by_slug_{$slug}", function () use ($slug) {
             $product = $this->entityManager->getRepository(Product::class)->findOneBy(['slug' => $slug]);
 
             if (!$product) {
