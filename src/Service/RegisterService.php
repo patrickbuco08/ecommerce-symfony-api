@@ -4,34 +4,36 @@ namespace Bocum\Service;
 
 use Bocum\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+
+use Bocum\Dto\Request\UserRegisterData;
+use Bocum\Transformer\UserTransformer;
 
 class RegisterService
 {
-    private EntityManagerInterface $entityManager;
-    private UserService $userService;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        UserService $userService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->userService = $userService;
-    }
+        private EntityManagerInterface $entityManager,
+        private UserService $userService,
+        private UserTransformer $userTransformer
+    ) {}
 
-    public function registerUser(array $data): JsonResponse
+    public function registerUser(UserRegisterData $data): User
     {
-        if (!isset($data['email'], $data['password'])) {
-            return new JsonResponse(['error' => 'Email and password are required']);
+        if (empty($data->email) || empty($data->password)) {
+            throw new \InvalidArgumentException('Email and password are required');
         }
 
-        $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+        $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data->email]);
 
         if ($existingUser) {
-            return new JsonResponse(['error' => 'User already exists']);
+            throw new \RuntimeException('User already exists');
         }
 
-        $result = $this->userService->create($data);
-        return new JsonResponse($result);
+        $user = $this->userService->create($data);
+
+        if (!$user instanceof User) {
+            throw new \RuntimeException('User registration failed');
+        }
+
+        return $user;
     }
 }

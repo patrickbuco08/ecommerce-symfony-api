@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Bocum\Entity\User;
 use Bocum\Service\UserService;
+use Bocum\Transformer\UserTransformer;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -15,12 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Route('/api/profile')]
 class ProfileController extends AbstractController
 {
-    private UserService $userService;
-
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
+    public function __construct(private UserService $userService, private UserTransformer $userTransformer) {}
 
     #[Route('', name: 'api_profile', methods: ['GET'])]
     public function profile(#[CurrentUser] ?User $user): JsonResponse
@@ -29,7 +25,7 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        return new JsonResponse($this->userService->get($user));
+        return new JsonResponse($this->userTransformer->transform($user));
     }
 
     #[Route('', name: 'update_profile', methods: ['PUT'])]

@@ -42,6 +42,7 @@ You can run the API in a **Dockerized** environment with **MySQL 8**.
 docker compose up -d  
 
 ### **2️⃣ Run Migrations Inside the PHP Container** 🔄  
+docker exec -it symfony_app php bin/console make:migration
 docker exec -it symfony_app php bin/console doctrine:migrations:migrate  
 
 ### **3️⃣ Access the API** 🌐  

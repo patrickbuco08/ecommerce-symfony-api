@@ -6,6 +6,7 @@ use Bocum\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Bocum\Dto\Request\UserRegisterData;
 
 class UserService
 {
@@ -23,13 +24,16 @@ class UserService
         $this->validator = $validator;
     }
 
-    public function create($data)
+    public function create(UserRegisterData $data)
     {
         $user = new User();
-        $user->setEmail($data['email']);
-        $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
+        $user->setFirstName($data->firstName);
+        $user->setLastName($data->lastName);
+        $user->setPhone($data->phone);
+        $user->setEmail($data->email);
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $data->password);
         $user->setPassword($hashedPassword);
-        $user->setRoles($data['roles'] ?? ['ROLE_USER']);
+        $user->setRoles($data->roles ?? ['ROLE_USER']);
 
         $errors = $this->validator->validate($user);
         if (count($errors) > 0) {

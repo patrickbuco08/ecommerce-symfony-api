@@ -3,9 +3,7 @@
 namespace Bocum\Transformer;
 
 use Bocum\Dto\OrderDto;
-use Bocum\Dto\ProductDto;
 use Bocum\Entity\Order;
-use Bocum\Entity\Product;
 
 class OrderTransformer
 {
