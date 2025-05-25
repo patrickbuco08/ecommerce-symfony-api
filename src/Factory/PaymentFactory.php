@@ -7,7 +7,8 @@ use Bocum\Entity\Payment;
 
 class PaymentFactory
 {
-    public function create(PaymentDto $payment): Payment {
+    public function create(PaymentDto $payment): Payment
+    {
         return (new Payment())
             ->setOrder($payment->order)
             ->setUser($payment->user)

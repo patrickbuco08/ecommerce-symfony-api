@@ -3,26 +3,18 @@
 namespace Bocum\Service;
 
 use Bocum\Entity\User;
+use Bocum\Dto\Request\UserRegisterData;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Bocum\Dto\Request\UserRegisterData;
 
 class UserService
 {
-    private EntityManagerInterface $entityManager;
-    private UserPasswordHasherInterface $passwordHasher;
-    private ValidatorInterface $validator;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $passwordHasher,
-        ValidatorInterface $validator
-    ) {
-        $this->entityManager = $entityManager;
-        $this->passwordHasher = $passwordHasher;
-        $this->validator = $validator;
-    }
+        private EntityManagerInterface $entityManager,
+        private UserPasswordHasherInterface $passwordHasher,
+        private ValidatorInterface $validator
+    ) {}
 
     public function create(UserRegisterData $data)
     {

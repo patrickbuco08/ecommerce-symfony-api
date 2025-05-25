@@ -2,10 +2,10 @@
 
 namespace Bocum\Factory;
 
-use Bocum\Dto\Request\OrderData;
 use Bocum\Entity\Order;
 use Bocum\Entity\Product;
 use Bocum\Entity\OrderItem;
+use Bocum\Dto\Request\OrderData;
 use Doctrine\ORM\EntityManagerInterface;
 
 class OrderFactory
@@ -40,11 +40,9 @@ class OrderFactory
 
     private function createOrderItem(Product $product, int $quantity): OrderItem
     {
-        $orderItem = new OrderItem();
-        $orderItem->setProduct($product);
-        $orderItem->setQuantity($quantity);
-        $orderItem->setPrice($product->getPrice() * $quantity);
-
-        return $orderItem;
+        return (new OrderItem())
+            ->setProduct($product)
+            ->setQuantity($quantity)
+            ->setPrice($product->getPrice() * $quantity);
     }
 }

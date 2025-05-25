@@ -2,9 +2,9 @@
 
 namespace Bocum\Factory;
 
+use Bocum\Entity\User;
 use Bocum\Entity\Product;
 use Bocum\Entity\Category;
-use Bocum\Entity\User;
 
 class ProductFactory
 {
@@ -17,11 +17,9 @@ class ProductFactory
         float $rating,
         User $user,
     ): Product {
-        $slug = $this->generateSlug($title);
-
         return (new Product())
             ->setTitle($title)
-            ->setSlug($slug)
+            ->setSlug($this->generateSlug($title))
             ->setCategory($category)
             ->setDescription($description)
             ->setPrice($price)
