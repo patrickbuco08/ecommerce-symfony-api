@@ -2,7 +2,6 @@
 
 namespace Bocum\Service;
 
-use Bocum\Entity\User;
 use Bocum\Entity\Order;
 use Bocum\Dto\PaymentDto;
 use Bocum\Enum\PaymentOption;
@@ -10,6 +9,7 @@ use Bocum\Factory\PaymentFactory;
 use Bocum\Transformer\OrderTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Bocum\Service\Payment\PaymentProcessor;
+use Symfony\Bundle\SecurityBundle\Security;
 use Bocum\Service\Payment\GcashPaymentStrategy;
 use Bocum\Service\Payment\PaypalPaymentStrategy;
 use Bocum\Service\Payment\StripePaymentStrategy;
@@ -19,11 +19,13 @@ class PaymentService
     public function __construct(
         private EntityManagerInterface $entityManager,
         private OrderTransformer $orderTransformer,
-        private PaymentFactory $paymentFactory
+        private PaymentFactory $paymentFactory,
+        private Security $security
     ) {}
 
-    public function processPayment(array $data, User $user)
+    public function processPayment(array $data)
     {
+        $user = $this->security->getUser();
         $orderId = $data['order_id'] ?? null;
         $paymentMethod = PaymentOption::tryFrom($data['payment_method']);
         $amount = $data['amount'] ?? null;

@@ -7,8 +7,10 @@ use Bocum\Entity\Category;
 use Bocum\Factory\ProductFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Bocum\Transformer\ProductTransformer;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -19,7 +21,8 @@ class ProductService
         private ValidatorInterface $validator,
         private ProductTransformer $productTransformer,
         private ProductFactory $productFactory,
-        private CacheInterface $cache
+        private CacheInterface $cache,
+        private Security $security
     ) {}
 
     public function getProductById(int $id)
@@ -48,12 +51,12 @@ class ProductService
         });
     }
 
-    public function create(array $data): array
+    public function create(array $data): Product
     {
         $category = $this->entityManager->getRepository(Category::class)->findOneBy(['id' => $data['category_id']]);
 
         if (!$category) {
-            return ['error' => 'Missing category'];
+            throw new NotFoundHttpException('Category not found');
         }
 
         $product = $this->productFactory->create(
@@ -62,18 +65,20 @@ class ProductService
             $data['description'] ?? null,
             (float) $data['price'],
             (int) $data['stock'],
-            (float) $data['rating']
+            (float) $data['rating'],
+            $this->security->getUser()
         );
 
         $errors = $this->validator->validate($product);
         if (count($errors) > 0) {
-            return ['errors' => array_map(fn($e) => $e->getMessage(), iterator_to_array($errors))];
+            $errorMessages = array_map(fn($e) => $e->getMessage(), iterator_to_array($errors));
+            throw new ValidatorException(implode('; ', $errorMessages));
         }
 
         $this->entityManager->persist($product);
         $this->entityManager->flush();
 
-        return ['message' => 'Product created successfully', 'id' => $product->getId()];
+        return $product;
     }
 
     public function update(Product $product, $data)

@@ -3,32 +3,54 @@
 namespace Bocum\Controller\Admin;
 
 use Bocum\Entity\Product;
+use Bocum\Form\ProductType;
 use Bocum\Service\ProductService;
+use Bocum\Transformer\ProductTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[Route('/api/admin/products')]
 #[IsGranted('ROLE_ADMIN')]
 class ProductController extends AbstractController
 {
-    public function __construct(private ProductService $productService) {}
+    public function __construct(
+        private ProductService $productService,
+        private FormFactoryInterface $formFactory,
+        private ProductTransformer $productTransformer,
+    ) {}
 
     #[Route('', name: 'create_product', methods: ['POST'])]
     public function createProduct(
         Request $request,
     ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
+        $form = $this->formFactory->create(ProductType::class);
+        $form->submit(json_decode($request->getContent(), true));
 
-        if (!isset($data['title'], $data['price'], $data['stock'])) {
-            return new JsonResponse(['error' => 'Missing required fields']);
+        if (!$form->isValid()) {
+            $errors = [];
+            foreach ($form->getErrors(true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+
+            return new JsonResponse(['errors' => $errors], 400);
         }
 
-        $result = $this->productService->create($data);
+        try {
+            $product = $this->productService->create($form->getData());
+            $data = $this->productTransformer->transform($product);
 
-        return new JsonResponse($result, isset($result['error']) ? JsonResponse::HTTP_BAD_REQUEST : JsonResponse::HTTP_CREATED);
+            return new JsonResponse($data, JsonResponse::HTTP_CREATED);
+        } catch (NotFoundHttpException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
+        } catch (ValidatorException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
+        }
     }
 
     #[Route('/{id}', name: 'update_product', methods: ['PUT'])]

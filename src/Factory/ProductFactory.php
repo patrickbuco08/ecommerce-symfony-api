@@ -4,6 +4,7 @@ namespace Bocum\Factory;
 
 use Bocum\Entity\Product;
 use Bocum\Entity\Category;
+use Bocum\Entity\User;
 
 class ProductFactory
 {
@@ -13,7 +14,8 @@ class ProductFactory
         ?string $description,
         float $price,
         int $stock,
-        float $rating
+        float $rating,
+        User $user,
     ): Product {
         $slug = $this->generateSlug($title);
 
@@ -24,7 +26,8 @@ class ProductFactory
             ->setDescription($description)
             ->setPrice($price)
             ->setStock($stock)
-            ->setRating($rating);
+            ->setRating($rating)
+            ->setUser($user);
     }
 
     private function generateSlug(string $title): string
