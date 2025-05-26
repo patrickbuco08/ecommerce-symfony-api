@@ -16,9 +16,35 @@ class ProductController extends AbstractController
     public function __construct(private ProductService $productService) {}
 
     #[Route('', name: 'get_products', methods: ['GET'])]
-    public function getProducts(): JsonResponse
+    public function getProducts(Request $request): JsonResponse
     {
-        return new JsonResponse($this->productService->getAllProducts(), JsonResponse::HTTP_OK);
+        $products = $this->productService->getAllProducts($request);
+
+        return new JsonResponse([
+            'page' => $products->page,
+            'total_pages' => $products->totalPages,
+            'total_results' => $products->totalResults,
+            'products' => $products->results
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/search', name: 'search_products', methods: ['GET'])]
+    public function searchProducts(Request $request): JsonResponse
+    {
+        $query = $request->query->get('query');
+
+        if ($query === null || trim($query) === '') {
+            return new JsonResponse(['error' => 'Query parameter is required'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $products = $this->productService->searchProducts($query, $request);
+
+        return new JsonResponse([
+            'page' => $products->page,
+            'total_pages' => $products->totalPages,
+            'total_results' => $products->totalResults,
+            'products' => $products->results
+        ], JsonResponse::HTTP_OK);
     }
 
     #[Route('/{slug}', name: 'get_product', methods: ['GET'])]

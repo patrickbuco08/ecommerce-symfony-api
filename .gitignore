@@ -31,3 +31,5 @@
 ###< lexik/jwt-authentication-bundle ###
 
 /apollo-server/node_modules/*
+
+todos.md

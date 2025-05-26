@@ -6,9 +6,11 @@ use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\Request;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
-class Pagination
+use Bocum\Dto\PaginationResult;
+
+class PaginationService
 {
-    public static function paginate($queryBuilder, Request $request, int $maxPerPage = 10): array
+    public function paginate($queryBuilder, Request $request, int $maxPerPage = 10): PaginationResult
     {
         $adapter = new QueryAdapter($queryBuilder);
         $pagerfanta = new Pagerfanta($adapter);
@@ -17,11 +19,12 @@ class Pagination
         $pagerfanta->setMaxPerPage($maxPerPage);
         $pagerfanta->setCurrentPage($page);
 
-        return [
-            'page' => $page,
-            'total_pages' => $pagerfanta->getNbPages(),
-            'total_results' => $pagerfanta->getNbResults(),
-            'results' => iterator_to_array($pagerfanta->getCurrentPageResults())
-        ];
+        return new PaginationResult(
+            $page,
+            $pagerfanta->getNbPages(),
+            $pagerfanta->getNbResults(),
+            iterator_to_array($pagerfanta->getCurrentPageResults())
+        );
     }
 }
+

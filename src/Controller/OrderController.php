@@ -5,9 +5,9 @@ namespace Bocum\Controller;
 use Bocum\Entity\User;
 use Bocum\Entity\Order;
 use Bocum\Enum\OrderStatus;
-use Bocum\Service\Pagination;
 use Bocum\Service\OrderService;
 use Bocum\Service\PdfGenerator;
+use Bocum\Service\PaginationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +29,7 @@ class OrderController extends AbstractController
         private EntityManagerInterface $entityManager,
         private PdfGenerator $pdfGenerator,
         private ParameterBagInterface $params,
+        private PaginationService $paginationService,
     ) {}
 
     #[Route('', name: 'create_order', methods: ['POST'])]
@@ -64,13 +65,13 @@ class OrderController extends AbstractController
             ->setParameter('status', $status)
             ->orderBy('o.createdAt', 'DESC');
 
-        $pagination = Pagination::paginate($queryBuilder, $request);
+        $pagination = $this->paginationService->paginate($queryBuilder, $request);
 
         return new JsonResponse([
-            'page' => $pagination['page'],
-            'total_pages' => $pagination['total_pages'],
-            'total_orders' => $pagination['total_results'],
-            'orders' => array_map(fn($order) => $this->orderService->orderToArray($order), $pagination['results'])
+            'page' => $pagination->page,
+            'total_pages' => $pagination->totalPages,
+            'total_orders' => $pagination->totalResults,
+            'orders' => array_map(fn($order) => $this->orderService->orderToArray($order), $pagination->results)
         ]);
     }
 

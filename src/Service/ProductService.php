@@ -4,11 +4,14 @@ namespace Bocum\Service;
 
 use Bocum\Entity\Product;
 use Bocum\Entity\Category;
+use Bocum\Dto\PaginationResult;
 use Bocum\Factory\ProductFactory;
+use Bocum\Service\PaginationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Bocum\Transformer\ProductTransformer;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -22,8 +25,18 @@ class ProductService
         private ProductTransformer $productTransformer,
         private ProductFactory $productFactory,
         private CacheInterface $cache,
-        private Security $security
+        private Security $security,
+        private PaginationService $paginationService
     ) {}
+
+    public function searchProducts(string $query, Request $request): PaginationResult
+    {
+        $qb = $this->entityManager->getRepository(Product::class)->getSearchByNameOrDescriptionQueryBuilder($query);
+        $pagination = $this->paginationService->paginate($qb, $request);
+        $pagination->results = $this->productTransformer->transformCollection($pagination->results);
+
+        return $pagination;
+    }
 
     public function getProductById(int $id)
     {
@@ -115,11 +128,13 @@ class ProductService
         $this->entityManager->flush();
     }
 
-    public function getAllProducts(): array
+    public function getAllProducts(Request $request): PaginationResult
     {
-        $products = $this->entityManager->getRepository(Product::class)->findAll();
+        $qb = $this->entityManager->getRepository(Product::class)->getAllProductsQueryBuilder();
+        $pagination = $this->paginationService->paginate($qb, $request);
+        $pagination->results = $this->productTransformer->transformCollection($pagination->results);
 
-        return $this->productTransformer->transformCollection($products);
+        return $pagination;
     }
 
     public function productToArray(Product $product)
