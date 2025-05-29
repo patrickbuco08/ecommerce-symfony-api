@@ -3,14 +3,14 @@
 namespace Bocum\Service;
 
 use Pagerfanta\Pagerfanta;
-use Symfony\Component\HttpFoundation\Request;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
-
+use Doctrine\ORM\QueryBuilder;
 use Bocum\Dto\PaginationResult;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Symfony\Component\HttpFoundation\Request;
 
 class PaginationService
 {
-    public function paginate($queryBuilder, Request $request, int $maxPerPage = 10): PaginationResult
+    public function paginate(QueryBuilder $queryBuilder, Request $request, int $maxPerPage = 10): PaginationResult
     {
         $adapter = new QueryAdapter($queryBuilder);
         $pagerfanta = new Pagerfanta($adapter);

@@ -8,6 +8,7 @@ use Bocum\Entity\Product;
 use Bocum\Repository\CartRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CartService
 {
@@ -60,5 +61,27 @@ class CartService
         $this->em->flush();
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    public function updateCartItem(User $user, int $cartId, int $quantity): Cart
+    {
+        $cartItem = $this->cartRepository->find($cartId);
+
+        if (!$cartItem) {
+            throw new NotFoundHttpException('Cart item not found');
+        }
+
+        if ($cartItem->getUser()->getId() !== $user->getId()) {
+            throw new NotFoundHttpException('Forbidden: You do not own this cart item');
+        }
+
+        if ($quantity < 1) {
+            throw new NotFoundHttpException('Quantity must be at least 1');
+        }
+
+        $cartItem->setQuantity($quantity);
+        $this->em->flush();
+
+        return $cartItem;
     }
 }

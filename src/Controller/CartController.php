@@ -2,12 +2,9 @@
 
 namespace Bocum\Controller;
 
-use Bocum\Entity\Cart;
 use Bocum\Entity\User;
-use Bocum\Entity\Product;
-use Bocum\Repository\CartRepository;
 use Bocum\Service\CartService;
-use Doctrine\ORM\EntityManagerInterface;
+use Bocum\Transformer\CartTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,7 +14,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 #[Route('/api/carts')]
 class CartController extends AbstractController
 {
-    public function __construct(private CartService $cartService) {}
+    public function __construct(
+        private CartService $cartService,
+        private CartTransformer $cartTransformer
+    ) {}
 
     #[Route('', name: 'get_cart', methods: ['GET'])]
     public function getCart(#[CurrentUser] ?User $user): JsonResponse
@@ -54,5 +54,27 @@ class CartController extends AbstractController
         }
 
         return $this->cartService->removeFromCart($user, $id);
+    }
+
+    #[Route('/{id}', name: 'update_cart_item', methods: ['PUT'])]
+    public function updateCartItem(#[CurrentUser] ?User $user, int $id, Request $request): JsonResponse
+    {
+        if (!$user) {
+            return new JsonResponse(['error' => 'Unauthorized'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!isset($data['quantity'])) {
+            return new JsonResponse(['error' => 'Missing quantity field'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $cart = $this->cartService->updateCartItem($user, $id, $data['quantity']);
+            $data = $this->cartTransformer->transform($cart);
+
+            return new JsonResponse($data, JsonResponse::HTTP_OK);
+        } catch (\Throwable $th) {
+            return new JsonResponse(['error' => $th->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
+        }
     }
 }

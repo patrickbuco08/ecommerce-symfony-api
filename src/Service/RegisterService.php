@@ -2,11 +2,12 @@
 
 namespace Bocum\Service;
 
+use RuntimeException;
 use Bocum\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
-
-use Bocum\Dto\Request\UserRegisterData;
+use InvalidArgumentException;
 use Bocum\Transformer\UserTransformer;
+use Bocum\Dto\Request\UserRegisterData;
+use Doctrine\ORM\EntityManagerInterface;
 
 class RegisterService
 {
@@ -16,24 +17,27 @@ class RegisterService
         private UserTransformer $userTransformer
     ) {}
 
-    public function registerUser(UserRegisterData $data): User
+    public function registerUser(array $data): User
     {
-        if (empty($data->email) || empty($data->password)) {
-            throw new \InvalidArgumentException('Email and password are required');
+        if (empty($data['email']) || empty($data['password'])) {
+            throw new InvalidArgumentException('Email and password are required');
         }
 
-        $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data->email]);
+        $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
 
         if ($existingUser) {
-            throw new \RuntimeException('User already exists');
+            throw new RuntimeException('User already exists');
         }
 
-        $user = $this->userService->create($data);
+        $userRegisterData = new UserRegisterData(
+            $data['first_name'] ?? null,
+            $data['last_name'] ?? null,
+            $data['phone'] ?? null,
+            $data['email'],
+            $data['password'],
+            $data['roles'] ?? null
+        );
 
-        if (!$user instanceof User) {
-            throw new \RuntimeException('User registration failed');
-        }
-
-        return $user;
+        return $this->userService->create($userRegisterData);
     }
 }

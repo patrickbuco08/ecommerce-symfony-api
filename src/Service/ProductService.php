@@ -31,7 +31,7 @@ class ProductService
 
     public function searchProducts(string $query, Request $request): PaginationResult
     {
-        $qb = $this->entityManager->getRepository(Product::class)->getSearchByNameOrDescriptionQueryBuilder($query);
+        $qb = $this->entityManager->getRepository(Product::class)->searchProductQueryBuilder($query);
         $pagination = $this->paginationService->paginate($qb, $request);
         $pagination->results = $this->productTransformer->transformCollection($pagination->results);
 

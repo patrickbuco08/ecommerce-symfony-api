@@ -8,11 +8,11 @@ use Bocum\Enum\PaymentOption;
 use Bocum\Factory\PaymentFactory;
 use Bocum\Transformer\OrderTransformer;
 use Doctrine\ORM\EntityManagerInterface;
-use Bocum\Service\Payment\PaymentProcessor;
 use Symfony\Bundle\SecurityBundle\Security;
 use Bocum\Service\Payment\GcashPaymentStrategy;
 use Bocum\Service\Payment\PaypalPaymentStrategy;
 use Bocum\Service\Payment\StripePaymentStrategy;
+use Bocum\Service\Payment\PaymentProcessorFactory;
 
 class PaymentService
 {
@@ -20,7 +20,11 @@ class PaymentService
         private EntityManagerInterface $entityManager,
         private OrderTransformer $orderTransformer,
         private PaymentFactory $paymentFactory,
-        private Security $security
+        private Security $security,
+        private PaypalPaymentStrategy $paypalStrategy,
+        private StripePaymentStrategy $stripeStrategy,
+        private GcashPaymentStrategy $gcashStrategy,
+        private PaymentProcessorFactory $paymentProcessorFactory
     ) {}
 
     public function processPayment(array $data)
@@ -45,14 +49,14 @@ class PaymentService
         }
 
         $paymentStrategy = match ($paymentMethod->value) {
-            'paypal' => new PaypalPaymentStrategy(),
-            'stripe' => new StripePaymentStrategy(),
-            'gcash' => new GcashPaymentStrategy(),
+            'paypal' => $this->paypalStrategy,
+            'stripe' => $this->stripeStrategy,
+            'gcash' => $this->gcashStrategy,
             default => throw new \Exception('Invalid payment method'),
         };
 
         // Process payment
-        $processor = new PaymentProcessor($paymentStrategy);
+        $processor = $this->paymentProcessorFactory->create($paymentStrategy);
         $result = $processor->processPayment(new PaymentDto($order, $user, $amount));
 
         // Update order with payment details

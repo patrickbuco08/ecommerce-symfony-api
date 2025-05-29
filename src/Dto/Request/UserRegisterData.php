@@ -11,15 +11,4 @@ class UserRegisterData
         public string $email,
         public string $password
     ) {}
-
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            $data['first_name'] ?? '',
-            $data['last_name'] ?? '',
-            $data['phone'] ?? '',
-            $data['email'] ?? '',
-            $data['password'] ?? ''
-        );
-    }
 }

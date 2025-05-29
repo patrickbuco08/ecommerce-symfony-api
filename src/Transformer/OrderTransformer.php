@@ -4,22 +4,24 @@ namespace Bocum\Transformer;
 
 use Bocum\Dto\OrderDto;
 use Bocum\Entity\Order;
+use Bocum\Transformer\UserTransformer;
 
 class OrderTransformer
 {
+    public function __construct(
+        private UserTransformer $userTransformer,
+        private OrderItemTransformer $orderItemTransformer
+    ) {}
+
     public function transform(Order $order): OrderDto
     {
         return new OrderDto(
             $order->getId(),
-            $order->getUser()->getEmail(),
+            (array) $this->userTransformer->transform($order->getUser()),
             $order->getStatus()->value,
             $order->getTotal(),
             $order->getCreatedAt()->format('Y-m-d H:i:s'),
-            array_map(fn($item) => [
-                'product' => $item->getProduct()->getTitle(),
-                'quantity' => $item->getQuantity(),
-                'price' => $item->getPrice(),
-            ], $order->getItems()->toArray())
+            $this->orderItemTransformer->transformCollection($order->getItems()->toArray())
         );
     }
 

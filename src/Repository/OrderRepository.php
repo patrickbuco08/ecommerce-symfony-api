@@ -5,6 +5,7 @@ namespace Bocum\Repository;
 use Bocum\Entity\Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * @extends ServiceEntityRepository<Order>
@@ -40,4 +41,14 @@ class OrderRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function getUserOrdersByStatusQueryBuilder($user, $status): QueryBuilder
+    {
+        return $this->createQueryBuilder('o')
+            ->where('o.user = :user')
+            ->andWhere('o.status = :status')
+            ->setParameter('user', $user)
+            ->setParameter('status', $status)
+            ->orderBy('o.createdAt', 'DESC');
+    }
 }

@@ -3,8 +3,9 @@
 namespace Bocum\Repository;
 
 use Bocum\Entity\Product;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Product>
@@ -19,14 +20,11 @@ class ProductRepository extends ServiceEntityRepository
      */
     public function searchByNameOrDescription(string $query): array
     {
-        $qb = $this->getSearchByNameOrDescriptionQueryBuilder($query);
+        $qb = $this->searchProductQueryBuilder($query);
         return $qb->getQuery()->getResult();
     }
 
-    /**
-     * Returns a QueryBuilder for searching products by name or description (case sensitive).
-     */
-    public function getSearchByNameOrDescriptionQueryBuilder(string $query)
+    public function searchProductQueryBuilder(string $query): QueryBuilder
     {
         $qb = $this->createQueryBuilder('p');
         $qb->where(
@@ -35,15 +33,16 @@ class ProductRepository extends ServiceEntityRepository
                 $qb->expr()->like('p.description', ':query')
             )
         )
-        ->setParameter('query', '%' . $query . '%')
-        ->orderBy('p.title', 'ASC');
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('p.title', 'ASC');
+
         return $qb;
     }
 
     /**
      * Returns a QueryBuilder for all products (for pagination).
      */
-    public function getAllProductsQueryBuilder()
+    public function getAllProductsQueryBuilder(): QueryBuilder
     {
         return $this->createQueryBuilder('p')->orderBy('p.title', 'ASC');
     }

@@ -4,12 +4,14 @@ namespace Bocum\Service;
 
 use Bocum\Entity\User;
 use Bocum\Entity\Order;
-use Bocum\Dto\Request\OrderData;
 use Bocum\Enum\OrderStatus;
 use Bocum\Factory\OrderFactory;
+use Bocum\Dto\Request\OrderData;
 use Bocum\Service\MailerService;
+use Bocum\Service\PaginationService;
 use Bocum\Transformer\OrderTransformer;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -22,6 +24,7 @@ class OrderService
         private PdfGenerator $pdfGenerator,
         private OrderFactory $orderFactory,
         private OrderTransformer $orderTransformer,
+        private PaginationService $paginationService,
     ) {}
 
     public function create(UserInterface $user, array $data): array
@@ -69,5 +72,11 @@ class OrderService
     public function orderToArray(Order $order)
     {
         return $this->orderTransformer->transform($order);
+    }
+
+    public function paginateUserOrdersByStatus(User $user, string $status, Request $request)
+    {
+        $qb = $this->entityManager->getRepository(Order::class)->getUserOrdersByStatusQueryBuilder($user, $status);
+        return $this->paginationService->paginate($qb, $request);
     }
 }

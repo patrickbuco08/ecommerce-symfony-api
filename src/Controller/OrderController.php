@@ -57,21 +57,13 @@ class OrderController extends AbstractController
             return new JsonResponse(['error' => 'Invalid order status'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $queryBuilder = $this->entityManager->getRepository(Order::class)
-            ->createQueryBuilder('o')
-            ->where('o.user = :user')
-            ->andWhere('o.status = :status')
-            ->setParameter('user', $user)
-            ->setParameter('status', $status)
-            ->orderBy('o.createdAt', 'DESC');
-
-        $pagination = $this->paginationService->paginate($queryBuilder, $request);
+        $order = $this->orderService->paginateUserOrdersByStatus($user, $status, $request);
 
         return new JsonResponse([
-            'page' => $pagination->page,
-            'total_pages' => $pagination->totalPages,
-            'total_orders' => $pagination->totalResults,
-            'orders' => array_map(fn($order) => $this->orderService->orderToArray($order), $pagination->results)
+            'page' => $order->page,
+            'total_pages' => $order->totalPages,
+            'total_orders' => $order->totalResults,
+            'orders' => array_map(fn($order) => $this->orderService->orderToArray($order), $order->results)
         ]);
     }
 
@@ -97,6 +89,18 @@ class OrderController extends AbstractController
             'message' => 'Order canceled successfully',
             'new_status' => $order->getStatus()->value
         ]);
+    }
+
+    #[Route('/{id}', name: 'get_order_details', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function getOrderDetails(Order $order, #[CurrentUser] User $user): JsonResponse
+    {
+        // Ensure the user owns the order or is an admin
+        if ($order->getUser() !== $user && !in_array('ROLE_ADMIN', $user->getRoles())) {
+            return new JsonResponse(['error' => 'You can only access your own orders'], JsonResponse::HTTP_FORBIDDEN);
+        }
+        $data = $this->orderService->orderToArray($order);
+        return new JsonResponse($data, JsonResponse::HTTP_OK);
     }
 
     #[Route('/{id}/invoice', name: 'get_order_invoice', methods: ['GET'])]

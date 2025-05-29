@@ -16,7 +16,7 @@ class UserService
         private ValidatorInterface $validator
     ) {}
 
-    public function create(UserRegisterData $data)
+    public function create(UserRegisterData $data): User
     {
         $user = new User();
         $user->setFirstName($data->firstName);
@@ -29,22 +29,14 @@ class UserService
 
         $errors = $this->validator->validate($user);
         if (count($errors) > 0) {
-            return ['errors' => array_map(fn($e) => $e->getMessage(), iterator_to_array($errors))];
+            $errorMessages = array_map(fn($e) => $e->getMessage(), iterator_to_array($errors));
+            throw new \RuntimeException(implode('; ', $errorMessages));
         }
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return $user;
-    }
-
-    public function get(User $user): array
-    {
-        return [
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'roles' => $user->getRoles(),
-        ];
     }
 
     public function update(User $user, array $data): array

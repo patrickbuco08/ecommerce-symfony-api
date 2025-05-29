@@ -12,6 +12,14 @@ use Bocum\Transformer\ProductImageTransformer;
 
 class ProductTransformer
 {
+    public function __construct(
+        private CategoryTransformer $categoryTransformer,
+        private TagTransformer $tagTransformer,
+        private ReviewTransformer $reviewTransformer,
+        private ProductImageTransformer $productImageTransformer,
+        private UserTransformer $userTransformer
+    ) {}
+
     public function transform(Product $product): ProductDto
     {
         return new ProductDto(
@@ -22,11 +30,11 @@ class ProductTransformer
             $product->getPrice(),
             $product->getRating(),
             $product->getStock(),
-            (new CategoryTransformer())->transform($product->getCategory()),
-            (new TagTransformer())->transformCollection($product->getTags()->toArray()),
-            (new ReviewTransformer())->transformCollection($product->getReviews()->toArray()),
-            (new ProductImageTransformer())->transformCollection($product->getImages()->toArray()),
-            (array) (new UserTransformer())->transform($product->getUser()),
+            $this->categoryTransformer->transform($product->getCategory()),
+            $this->tagTransformer->transformCollection($product->getTags()->toArray()),
+            $this->reviewTransformer->transformCollection($product->getReviews()->toArray()),
+            $this->productImageTransformer->transformCollection($product->getImages()->toArray()),
+            (array) $this->userTransformer->transform($product->getUser()),
             $product->getCreatedAt()->format('Y-m-d H:i:s')
         );
     }
@@ -36,3 +44,4 @@ class ProductTransformer
         return array_map(fn(Product $product) => $this->transform($product), $products);
     }
 }
+
