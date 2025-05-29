@@ -482,6 +482,59 @@
 					"response": []
 				},
 				{
+					"name": "/products/search",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/products/search/?query=caramel",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"products",
+								"search",
+								""
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "caramel"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/products/{slug}",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -509,7 +562,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/products/laptop-1",
+							"raw": "http://127.0.0.1:8000/api/products/classic-espresso",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -521,7 +574,7 @@
 							"path": [
 								"api",
 								"products",
-								"laptop-1"
+								"classic-espresso"
 							]
 						}
 					},
@@ -675,6 +728,52 @@
 					"response": []
 				},
 				{
+					"name": "/orders/{id}",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/orders/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"orders",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/orders",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -736,7 +835,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"items\": [\n    { \"product_id\": 1, \"quantity\": 2 },\n    { \"product_id\": 2, \"quantity\": 1 }\n  ]\n}",
+							"raw": "{\n  \"items\": [\n    { \"product_id\": 1, \"quantity\": 2 },\n    { \"product_id\": 2, \"quantity\": 1 }\n  ],\n  \"contact\": {\n    \"name\": \"Gohn Patrick D. Buco\",\n    \"phone\": \"+639773390832\"\n  }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -809,13 +908,165 @@
 			]
 		},
 		{
+			"name": "carts",
+			"item": [
+				{
+					"name": "/carts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": 1,\n    \"quantity\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/carts",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/carts/",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/carts/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"carts",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/carts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/carts",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "/login_check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let token = pm.response.json().token;",
+							"",
+							"if (token) {",
+							"    pm.environment.set(\"ecommerce_symfony_api_token\", token); // current value",
+							"    pm.environment.set(\"ecommerce_symfony_api_token\", token, \"initial\"); // initial value",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"email\": \"patrick.buco@lamudi.com\",\n  \"password\": \"password\"\n}",
+					"raw": "{\n  \"email\": \"patrickbuco15@gmail.com\",\n  \"password\": \"password\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -847,7 +1098,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"email\": \"patrickbuco26@gmail.com\",\n  \"password\": \"password\"\n}",
+					"raw": "{\n  \"first_name\": \"John Patrick\",\n  \"last_name\": \"Buco\",\n  \"phone\": \"+639773390832\",\n  \"email\": \"patrickbuco15@gmail.com\",\n  \"password\": \"password\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
