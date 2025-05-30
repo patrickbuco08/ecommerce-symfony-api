@@ -755,7 +755,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/orders/1",
+							"raw": "http://127.0.0.1:8000/api/orders/2",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -767,7 +767,7 @@
 							"path": [
 								"api",
 								"orders",
-								"1"
+								"2"
 							]
 						}
 					},
@@ -1035,6 +1035,187 @@
 							"path": [
 								"api",
 								"carts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "stores",
+			"item": [
+				{
+					"name": "/stores",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Patrick State University\",\n    \"description\": \"Enroll Now!\",\n    \"logo\": \"default.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/stores",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"stores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "stores/{slug}",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Patrick Masters Degree Celcius\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/stores/patrick-state-university",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"stores",
+								"patrick-state-university"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "stores",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/stores",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"stores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "stores/{slug}",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ecommerce_symfony_api_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/stores/patrick-elementary-school",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"stores",
+								"patrick-elementary-school"
 							]
 						}
 					},
