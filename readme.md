@@ -65,6 +65,28 @@ Import ecommerce_symfony_api.postman_collection.json into Postman.
 2️⃣ **Use the token in protected routes**  
 `Authorization: Bearer your-token-here`
 
+### **Running Automated Tests** 🧪
+
+You can run automated tests using PHPUnit. Here are some common commands:
+
+**Run all tests:**
+```bash
+./bin/phpunit
+```
+
+**Run a specific test file:**
+```bash
+./bin/phpunit tests/Service/StoreServiceTest.php
+```
+
+**Run a specific test method in a test class:**
+```bash
+./bin/phpunit --filter testGetPaginatedActiveStoresReturnsPaginationResult
+```
+
+- Make sure your dependencies are installed (`composer install`).
+- Tests are located in the `tests/` directory and use PHPUnit as configured in `phpunit.xml.dist`.
+
 ### **Populate Tables** 📦
 
 ## **Users**
